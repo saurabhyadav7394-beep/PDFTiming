@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDFTiming | Professional Document Suite</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Noto+Sans+Devanagari:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif; background: #f1f5f9; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+        .gradient-bg { background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        #editor { min-height: 500px; background: white; border: 1px solid #cbd5e1; border-radius: 1.5rem; padding: 40px; outline: none; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); font-size: 16px; overflow-y: auto; text-align: left; }
+        #editor:empty:before { content: attr(data-placeholder); color: #cbd5e1; font-style: italic; }
+        #editor ul { list-style-type: disc; padding-left: 30px; }
+        #editor ol { list-style-type: decimal; padding-left: 30px; }
+        .toolbar-btn { p: 2; border-radius: 6px; transition: 0.2s; color: #475569; border: 1px solid transparent; }
+        .toolbar-btn:hover { background: #e2e8f0; color: #2563eb; }
+        .preview-card { position: relative; width: 100%; aspect-ratio: 1; border-radius: 12px; border: 2px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); overflow: hidden; cursor: move; }
+        .preview-card img { width: 100%; height: 100%; object-fit: cover; }
+        .color-circle { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+
+    <nav class="bg-white/90 backdrop-blur-md sticky top-0 z-50 px-6 py-4 flex justify-between items-center border-b border-slate-200">
+        <div class="flex items-center gap-2 cursor-pointer" onclick="location.reload()">
+            <div class="gradient-bg p-2 rounded-lg text-white"><i data-lucide="shield-check"></i></div>
+            <span class="text-xl font-extrabold tracking-tighter italic text-slate-800">PDF<span class="text-blue-600">Timing</span></span>
+        </div>
+        <div class="flex items-center space-x-4 md:space-x-8 font-bold text-slate-500 text-sm">
+            <button onclick="switchTab('converter')" id="nav-converter" class="tab-link text-blue-600 border-b-2 border-blue-600 pb-1">Converter</button>
+            <button onclick="switchTab('resizer')" id="nav-resizer" class="tab-link pb-1">Resizer</button>
+            <button onclick="switchTab('writer')" id="nav-writer" class="tab-link pb-1">Writer Pro</button>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto py-8 px-4">
+
+        <section id="converter" class="tab-content active bg-white rounded-3xl p-6 md:p-10 shadow-xl border border-slate-100 text-center">
+            <h2 class="text-3xl font-extrabold mb-6 text-slate-800">Universal Converter</h2>
+            <div id="dropZone" class="border-2 border-dashed border-blue-200 rounded-3xl p-12 bg-blue-50/30 hover:bg-blue-50 transition-all cursor-pointer" onclick="document.getElementById('fileInput').click()">
+                <input type="file" id="fileInput" multiple accept="image/*" class="hidden" onchange="handleFileSelect(this.files)">
+                <i data-lucide="cloud-upload" class="mx-auto text-blue-400 w-12 h-12 mb-3"></i>
+                <p class="text-lg font-bold text-slate-600 italic">Select images to start conversion</p>
+            </div>
+            <div id="actionArea" class="hidden mt-10 text-left">
+                <div id="previewArea" class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8"></div>
+                <div class="flex flex-col md:flex-row gap-4 p-6 bg-slate-50 rounded-2xl border">
+                    <select id="outputType" class="flex-1 p-3 rounded-xl border border-slate-200 font-bold outline-none"><option value="pdf">Merge to single PDF</option><option value="jpg">Convert to JPG (Bulk)</option><option value="png">Convert to PNG (Bulk)</option></select>
+                    <button onclick="processUniversal()" class="gradient-bg text-white px-8 py-3 rounded-xl font-bold shadow-lg">Convert Now</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="resizer" class="tab-content bg-white rounded-3xl p-6 md:p-10 shadow-xl border border-slate-100 text-center">
+            <h2 class="text-2xl font-extrabold mb-8 text-slate-800 italic underline decoration-blue-500">Pro Resizer & Background Studio</h2>
+            <div class="grid lg:grid-cols-2 gap-10">
+                <div class="space-y-4 text-center">
+                    <div id="resDrop" class="border-2 border-dashed border-slate-200 rounded-2xl p-8 bg-slate-50 cursor-pointer hover:bg-indigo-50/50 min-h-[250px] flex items-center justify-center" onclick="document.getElementById('resInput').click()">
+                        <input type="file" id="resInput" accept="image/*" class="hidden" onchange="handleResInput(this.files[0])">
+                        <div id="resPlaceholder"><i data-lucide="image" class="mx-auto text-slate-400 w-10 h-10 mb-2"></i><p class="text-sm font-bold text-slate-400">Select Image</p></div>
+                        <img id="imgBefore" class="hidden max-h-[250px] rounded-lg shadow-md mx-auto">
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 text-left">
+                        <p class="text-[10px] font-bold text-slate-500 mb-3 uppercase tracking-tighter">Change Image Background</p>
+                        <div class="flex gap-3 items-center">
+                            <div onclick="setBgColor('#ffffff')" class="color-circle bg-white shadow-sm" title="White"></div>
+                            <div onclick="setBgColor('#000000')" class="color-circle bg-black" title="Black"></div>
+                            <div onclick="setBgColor('transparent')" class="color-circle border-2 border-dashed flex items-center justify-center" title="Transparent"><span class="text-[8px]">❌</span></div>
+                            <input type="color" id="customBg" onchange="setBgColor(this.value)" class="w-8 h-8 cursor-pointer rounded">
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-5 bg-slate-50 p-6 rounded-2xl border border-slate-200 text-left">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="text-[10px] font-bold text-slate-400 uppercase">Width</label><input type="number" id="targetW" value="70" class="w-full p-2.5 rounded-lg border outline-none font-bold"></div>
+                        <div><label class="text-[10px] font-bold text-slate-400 uppercase">Height</label><input type="number" id="targetH" value="70" class="w-full p-2.5 rounded-lg border outline-none font-bold"></div>
+                        <div><label class="text-[10px] font-bold text-slate-400 uppercase">Unit</label><select id="resUnit" class="w-full p-2.5 rounded-lg border font-bold outline-none"><option value="percent">Percent (%)</option><option value="pixels">Pixels (px)</option><option value="cm">cm</option><option value="inches">in</option></select></div>
+                        <div><label class="text-[10px] font-bold text-slate-400 uppercase">Format</label><select id="targetFmt" class="w-full p-2.5 rounded-lg border font-bold outline-none"><option value="image/jpeg">JPG</option><option value="image/png">PNG</option></select></div>
+                        <div><label class="text-[10px] font-bold text-slate-400 uppercase">Res (DPI)</label><input type="number" id="targetDPI" value="72" class="w-full p-2.5 rounded-lg border outline-none font-bold"></div>
+                        <div><label class="text-[10px] font-bold text-slate-400 uppercase">Quality (%)</label><input type="number" id="targetQuality" value="90" min="1" max="100" class="w-full p-2.5 rounded-lg border outline-none font-bold"></div>
+                    </div>
+                    <button onclick="executeResize()" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold text-lg shadow-md hover:bg-indigo-700 transition">Apply & Download</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="writer" class="tab-content bg-white rounded-3xl p-6 md:p-10 shadow-xl border border-slate-100">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 border-b pb-4">
+                <div class="text-left"><h2 class="text-2xl font-extrabold text-slate-800">Professional Writer Pro</h2><p class="text-xs text-slate-400 italic font-bold">Smart Hindi & Formatting Enabled</p></div>
+                <div class="flex items-center gap-3 bg-purple-50 px-4 py-2 rounded-xl border border-purple-100">
+                    <span class="text-[10px] font-bold text-purple-600 uppercase">Smart Hindi</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="hindiToggle" class="sr-only peer"><div class="w-11 h-6 bg-slate-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-purple-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2 mb-4 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                <button onclick="exec('bold')" class="toolbar-btn" title="Bold"><i data-lucide="bold" class="w-4 h-4"></i></button>
+                <button onclick="exec('italic')" class="toolbar-btn" title="Italic"><i data-lucide="italic" class="w-4 h-4"></i></button>
+                <button onclick="exec('underline')" class="toolbar-btn" title="Underline"><i data-lucide="underline" class="w-4 h-4"></i></button>
+                <div class="h-5 w-px bg-slate-300 mx-1"></div>
+                <button onclick="exec('insertUnorderedList')" class="toolbar-btn" title="Bullets"><i data-lucide="list" class="w-4 h-4"></i></button>
+                <button onclick="exec('insertOrderedList')" class="toolbar-btn" title="Numbers"><i data-lucide="list-ordered" class="w-4 h-4"></i></button>
+                <div class="h-5 w-px bg-slate-300 mx-1"></div>
+                <button onclick="exec('justifyLeft')" class="toolbar-btn"><i data-lucide="align-left" class="w-4 h-4"></i></button>
+                <button onclick="exec('justifyCenter')" class="toolbar-btn"><i data-lucide="align-center" class="w-4 h-4"></i></button>
+                <div class="h-5 w-px bg-slate-300 mx-1"></div>
+                <div class="flex items-center gap-1 px-2 border rounded bg-white" title="Text Color">
+                    <i data-lucide="palette" class="w-3 h-3 text-slate-400"></i>
+                    <input type="color" onchange="exec('foreColor', this.value)" class="w-6 h-6 border-none cursor-pointer bg-transparent">
+                </div>
+                <div class="flex items-center gap-1 px-2 border rounded bg-white" title="Font Size">
+                    <span class="text-[8px] font-bold text-slate-400 uppercase">Size</span>
+                    <select onchange="exec('fontSize', this.value)" class="bg-transparent font-bold text-[10px] outline-none cursor-pointer">
+                        <option value="1">8</option><option value="2">10</option><option value="3">12</option><option value="4" selected>14</option><option value="5">18</option><option value="6">24</option><option value="7">36</option><option value="7">72</option>
+                    </select>
+                </div>
+                <button onclick="exec('removeFormat')" class="toolbar-btn text-red-500 ml-auto"><i data-lucide="eraser" class="w-4 h-4"></i></button>
+            </div>
+
+            <div id="editor" contenteditable="true" spellcheck="false" data-placeholder="Type your content here..."></div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                <button onclick="downloadPdf()" class="gradient-bg text-white py-4 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2"><i data-lucide="file-text"></i> Save as PDF</button>
+                <button onclick="downloadImg()" class="bg-slate-900 text-white py-4 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2"><i data-lucide="image"></i> Save as JPG Image</button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="py-12 text-center text-slate-400 text-sm italic">
+        <p class="font-bold text-slate-800 uppercase tracking-widest mb-1">PDFTiming Engine v10.0</p>
+        <p>100% Secure • Client-Side Processing • Made for Saurabh Yadav</p>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+        const pArea = document.getElementById('previewArea');
+        new Sortable(pArea, { animation: 150 });
+        let selectedBgColor = 'transparent';
+
+        function switchTab(id) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600'));
+            document.getElementById(id).classList.add('active');
+            document.getElementById('nav-' + id).classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+        }
+
+        function exec(cmd, val = null) { document.execCommand(cmd, false, val); }
+
+        function setBgColor(color) {
+            selectedBgColor = color;
+            const img = document.getElementById('imgBefore');
+            if(!img.classList.contains('hidden')) {
+                img.style.backgroundColor = color === 'transparent' ? 'transparent' : color;
+                img.style.padding = color === 'transparent' ? '0' : '10px';
+            }
+        }
+
+        function handleFileSelect(files) {
+            if(!files.length) return;
+            document.getElementById('actionArea').classList.remove('hidden');
+            Array.from(files).forEach(file => {
+                const r = new FileReader();
+                r.onload = (ev) => {
+                    const d = document.createElement('div');
+                    d.className = "preview-card";
+                    d.dataset.src = ev.target.result;
+                    d.innerHTML = `<img src="${ev.target.result}">`;
+                    pArea.appendChild(d);
+                };
+                r.readAsDataURL(file);
+            });
+        }
+
+        async function processUniversal() {
+            const mode = document.getElementById('outputType').value;
+            const items = Array.from(pArea.children);
+            if(!items.length) return alert("Files select karein!");
+            if(mode === 'pdf') {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                items.forEach((it, i) => {
+                    if(i > 0) doc.addPage();
+                    doc.addImage(it.dataset.src, 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
+                });
+                doc.save('PDFTiming_Master.pdf');
+            } else {
+                items.forEach((it, i) => {
+                    const a = document.createElement('a');
+                    a.download = `PDFTiming_Export_${i+1}.${mode}`;
+                    a.href = it.dataset.src;
+                    a.click();
+                });
+            }
+        }
+
+        function handleResInput(file) {
+            if(!file) return;
+            const r = new FileReader();
+            r.onload = (ev) => {
+                document.getElementById('resPlaceholder').classList.add('hidden');
+                document.getElementById('imgBefore').classList.remove('hidden');
+                document.getElementById('imgBefore').src = ev.target.result;
+            };
+            r.readAsDataURL(file);
+        }
+
+        function executeResize() {
+            const imgEl = document.getElementById('imgBefore');
+            if(imgEl.classList.contains('hidden')) return alert("Select image!");
+            const unit = document.getElementById('resUnit').value;
+            const w = parseFloat(document.getElementById('targetW').value);
+            const h = parseFloat(document.getElementById('targetH').value);
+            const q = parseFloat(document.getElementById('targetQuality').value) / 100;
+            const dpi = parseFloat(document.getElementById('targetDPI').value) || 96;
+            const canvas = document.createElement('canvas');
+            const img = new Image();
+            img.onload = () => {
+                let fW, fH;
+                const ratio = dpi / 96;
+                if(unit === 'percent') { fW = img.width * (w/100); fH = img.height * (h/100); }
+                else if(unit === 'pixels') { fW = w; fH = h; }
+                else if(unit === 'inches') { fW = w * 96 * ratio; fH = h * 96 * ratio; }
+                else if(unit === 'cm') { fW = (w/2.54) * 96 * ratio; fH = (h/2.54) * 96 * ratio; }
+                canvas.width = fW; canvas.height = fH;
+                const ctx = canvas.getContext('2d');
+                if(selectedBgColor !== 'transparent') { ctx.fillStyle = selectedBgColor; ctx.fillRect(0,0,fW,fH); }
+                ctx.drawImage(img, 0, 0, fW, fH);
+                const a = document.createElement('a');
+                a.download = 'PDFTiming_Resized.jpg';
+                a.href = canvas.toDataURL("image/jpeg", q);
+                a.click();
+            };
+            img.src = imgEl.src;
+        }
+
+        google.load("elements", "1", { packages: "transliteration" });
+        google.setOnLoadCallback(() => {
+            const control = new google.elements.transliteration.TransliterationControl({
+                sourceLanguage: google.elements.transliteration.LanguageCode.ENGLISH,
+                destinationLanguage: [google.elements.transliteration.LanguageCode.HINDI],
+                transliterationEnabled: false
+            });
+            control.makeTransliteratable(['editor']);
+            document.getElementById('hindiToggle').addEventListener('change', (e) => {
+                e.target.checked ? control.enableTransliteration() : control.disableTransliteration();
+            });
+        });
+
+        function downloadPdf() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'pt', 'a4');
+            doc.html(document.getElementById('editor'), {
+                callback: (d) => d.save('PDFTiming_Writer.pdf'),
+                margin: [40, 40, 40, 40],
+                x: 0, y: 0, width: 520, windowWidth: 800
+            });
+        }
+
+        function downloadImg() {
+            html2canvas(document.getElementById('editor'), { backgroundColor: "#ffffff", scale: 2 }).then(canvas => {
+                const a = document.createElement('a');
+                a.download = 'PDFTiming_Document.jpg';
+                a.href = canvas.toDataURL("image/jpeg", 0.9);
+                a.click();
+            });
+        }
+    </script>
+</body>
+</html>
