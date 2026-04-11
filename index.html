@@ -6,7 +6,6 @@
     <meta name="theme-color" content="#2563eb">
     <title>PDFTiming | World's #1 Free PDF & Image Suite</title>
 
-    <!-- FIX 5: Latest Tailwind CDN (no warning) -->
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <script>
       tailwind.config = {
@@ -18,38 +17,23 @@
       }
     </script>
 
-    <!-- jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- html2canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <!-- Sortable -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-
-    <!-- FIX 1: Lucide — load FIRST, synchronously, then init after DOM -->
     <script src="https://unpkg.com/lucide@0.344.0/dist/umd/lucide.min.js"></script>
 
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,800;1,400&display=swap" rel="stylesheet">
 
     <style>
-        /* ── Base ── */
         *, *::before, *::after { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
         body { font-family: 'Plus Jakarta Sans', Arial, sans-serif; background: #f1f5f9; margin: 0; padding: 0; }
-
-        /* ── Sections ── */
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn .3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* ── Gradient ── */
         .grad { background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%); }
-
-        /* ── Nav scroll — hide scrollbar cross-browser ── */
         .nav-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
         .nav-scroll::-webkit-scrollbar { display: none; }
-
-        /* ── Drop zone ── */
         .dropzone {
             border: 2px dashed #bfdbfe;
             border-radius: 20px;
@@ -61,8 +45,6 @@
             -webkit-tap-highlight-color: transparent;
         }
         .dropzone:hover, .dropzone.drag-over { background: #dbeafe; border-color: #2563eb; }
-
-        /* ── Tool grid ── */
         .tool-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
@@ -80,16 +62,11 @@
             user-select: none;
         }
         .tool-card:hover { border-color: #2563eb; box-shadow: 0 8px 24px rgba(37,99,235,.14); transform: translateY(-2px); }
-        .tool-card:active { transform: translateY(0); }
         .tool-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; }
         .tool-card span { font-size: 11.5px; font-weight: 700; color: #475569; display: block; line-height: 1.3; }
-
-        /* ── Preview cards ── */
         .preview-card { position: relative; border-radius: 10px; border: 2px solid white; box-shadow: 0 4px 10px rgba(0,0,0,.1); overflow: hidden; aspect-ratio: 1; cursor: grab; }
         .preview-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .preview-card .del-btn { position: absolute; top: 3px; right: 3px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; line-height: 1; padding: 0; }
-
-        /* ── Editor ── */
         #editor {
             min-height: 400px;
             background: white;
@@ -104,36 +81,17 @@
         #editor:empty::before { content: attr(data-placeholder); color: #94a3b8; font-style: italic; pointer-events: none; }
         #editor ul { list-style-type: disc; padding-left: 28px; }
         #editor ol { list-style-type: decimal; padding-left: 28px; }
-
-        /* ── Toolbar buttons ── */
         .tb { padding: 5px 8px; border-radius: 6px; border: 1px solid transparent; cursor: pointer; background: none; color: #475569; transition: background .15s, color .15s; font-size: 13px; line-height: 1; -webkit-tap-highlight-color: transparent; }
         .tb:hover { background: #e2e8f0; color: #2563eb; }
-
-        /* ── Toast ── */
         #toast { position: fixed; bottom: 24px; right: 16px; max-width: calc(100vw - 32px); background: #1e293b; color: white; padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: 700; z-index: 9999; display: none; box-shadow: 0 8px 32px rgba(0,0,0,.28); word-break: break-word; }
-
-        /* ── Color circle ── */
         .cc { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid #e2e8f0; flex-shrink: 0; transition: transform .15s; }
         .cc:hover { transform: scale(1.2); }
-
-        /* ── Scrollbar ── */
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: #f8fafc; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-
-        /* ── Safari flex gap fix ── */
-        .safari-gap > * + * { margin-left: 8px; }
-
-        /* ── Watermark canvas ── */
         #wmCanvas { max-width: 100%; border-radius: 12px; border: 1.5px solid #e2e8f0; display: block; }
-
-        /* ── Mobile nav button active ── */
         .nav-btn-active { background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%) !important; color: white !important; border-color: transparent !important; }
-
-        /* ── Section card ── */
         .sec-card { background: white; border-radius: 24px; padding: clamp(20px, 5vw, 40px); box-shadow: 0 4px 24px rgba(0,0,0,.07); border: 1px solid #f1f5f9; }
-
-        /* ── Range input cross-browser ── */
         input[type=range] { -webkit-appearance: none; width: 100%; height: 6px; background: #e2e8f0; border-radius: 3px; outline: none; cursor: pointer; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: #2563eb; border-radius: 50%; cursor: pointer; }
         input[type=range]::-moz-range-thumb { width: 18px; height: 18px; background: #2563eb; border-radius: 50%; border: none; cursor: pointer; }
@@ -141,14 +99,9 @@
 </head>
 <body>
 
-<!-- TOAST -->
 <div id="toast" role="status" aria-live="polite"></div>
 
-<!-- ══════════════════════════════════════
-     NAV
-══════════════════════════════════════ -->
 <nav class="bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200 px-3 sm:px-6 py-3">
-    <!-- Brand row -->
     <div class="flex items-center justify-between mb-2 sm:mb-3">
         <button onclick="showSection('home')" class="flex items-center gap-2 focus:outline-none" aria-label="Home">
             <div class="grad p-1.5 sm:p-2 rounded-xl text-white flex items-center justify-center">
@@ -159,7 +112,6 @@
         </button>
         <span class="text-[10px] sm:text-xs text-slate-400 font-bold">World's #1 Free Tool</span>
     </div>
-    <!-- Tool tabs scroll -->
     <div class="nav-scroll">
         <div class="flex gap-1.5 pb-0.5 whitespace-nowrap" id="navTabs">
             <button onclick="showSection('home')" id="nb-home" class="nav-btn nav-btn-active text-xs font-bold px-3 py-1.5 rounded-lg border border-transparent transition-all">🏠 Home</button>
@@ -181,11 +133,7 @@
 
 <main class="max-w-5xl mx-auto py-4 sm:py-6 px-3 sm:px-4">
 
-<!-- ══════════════════════════════════════
-     HOME
-══════════════════════════════════════ -->
 <section id="home" class="tab-content active space-y-5 sm:space-y-6">
-    <!-- Hero -->
     <div class="grad rounded-2xl sm:rounded-3xl p-6 sm:p-10 md:p-14 text-white text-center relative overflow-hidden">
         <div class="relative z-10">
             <span class="inline-block bg-white/20 text-white text-xs font-bold px-4 py-1 rounded-full mb-3">🌟 World's #1 Free Document Suite</span>
@@ -198,7 +146,6 @@
         </div>
     </div>
 
-    <!-- Stats -->
     <div class="grid grid-cols-3 gap-3">
         <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-5 text-center shadow-sm border border-slate-100">
             <p class="text-xl sm:text-3xl font-extrabold text-blue-600">13+</p>
@@ -214,11 +161,10 @@
         </div>
     </div>
 
-    <!-- Tools grid -->
     <div class="sec-card">
         <h2 class="text-base sm:text-xl font-extrabold text-slate-800 mb-4">All Tools</h2>
         <div class="tool-grid">
-            <div class="tool-card" onclick="showSection('img2pdf')" role="button" tabindex="0" aria-label="Image to PDF">
+            <div class="tool-card" onclick="showSection('img2pdf')" role="button" tabindex="0">
                 <div class="tool-icon" style="background:#dbeafe"><i data-lucide="file-image" style="color:#2563eb;width:20px;height:20px"></i></div>
                 <span>Image to PDF</span>
             </div>
@@ -269,7 +215,6 @@
         </div>
     </div>
 
-    <!-- Privacy -->
     <div class="bg-green-50 border border-green-200 rounded-2xl p-5 flex items-start gap-4">
         <span class="text-3xl flex-shrink-0">🔒</span>
         <div>
@@ -279,9 +224,6 @@
     </div>
 </section>
 
-<!-- ══════════════════════════════════════
-     IMAGE TO PDF
-══════════════════════════════════════ -->
 <section id="img2pdf" class="tab-content sec-card">
     <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mb-1">🖼️ Image to PDF</h2>
     <p class="text-slate-500 text-sm mb-5">Images select karein, arrange karein (drag), PDF banayein.</p>
@@ -298,7 +240,6 @@
     <div id="img2pdfAction" class="hidden mt-6">
         <p class="text-xs font-bold text-slate-400 uppercase mb-2">Files — Drag to Reorder</p>
         <div id="img2pdfPreview" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2 mb-5"></div>
-        <!-- Options -->
         <div class="bg-slate-50 rounded-xl p-4 border grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
             <div>
                 <label class="text-xs font-bold text-slate-500 block mb-1">Orientation</label>
@@ -325,13 +266,9 @@
     </div>
 </section>
 
-<!-- ══════════════════════════════════════
-     TEXT TO PDF (MULTI-LANGUAGE)
-══════════════════════════════════════ -->
 <section id="text2pdf" class="tab-content sec-card">
     <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mb-1">📝 Text to PDF</h2>
     <p class="text-slate-500 text-sm mb-5">Kisi bhi language mein likhein — 20+ scripts support.</p>
-    <!-- Options -->
     <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
         <div>
             <label class="text-xs font-bold text-slate-500 block mb-1">Language / Script</label>
@@ -399,9 +336,6 @@
     </div>
 </section>
 
-<!-- ══════════════════════════════════════
-     IMAGE TO PNG
-══════════════════════════════════════ -->
 <section id="img2png" class="tab-content sec-card">
     <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mb-1">🔄 Image to PNG</h2>
     <p class="text-slate-500 text-sm mb-5">JPG, WebP, BMP, GIF → PNG. Transparent background bhi milta hai!</p>
@@ -432,9 +366,6 @@
     </div>
 </section>
 
-<!-- ══════════════════════════════════════
-     IMAGE TO JPG
-══════════════════════════════════════ -->
 <section id="img2jpg" class="tab-content sec-card">
     <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mb-1">📸 Image to JPG</h2>
     <p class="text-slate-500 text-sm mb-5">PNG, WebP, BMP ko high-quality JPG mein convert karein.</p>
@@ -452,14 +383,10 @@
     </div>
 </section>
 
-<!-- ══════════════════════════════════════
-     RESIZER
-══════════════════════════════════════ -->
 <section id="resizer" class="tab-content sec-card">
     <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mb-1">📐 Pro Image Resizer</h2>
-    <p class="text-slate-500 text-sm mb-5">Pixels, %, cm, inches — sab units. Background bhi change karein.</p>
+    <p class="text-slate-500 text-sm mb-5">Pixels, %, cm, inches, KB — sab units. Background bhi change karein.</p>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Drop -->
         <div>
             <div class="dropzone flex flex-col items-center justify-center min-h-[180px]" onclick="document.getElementById('resInput').click()">
                 <input type="file" id="resInput" accept="image/*" class="hidden" onchange="handleResInput(this.files[0])">
@@ -481,24 +408,36 @@
                 </div>
             </div>
         </div>
-        <!-- Controls -->
         <div class="bg-slate-50 rounded-xl p-5 border space-y-3">
             <div class="grid grid-cols-2 gap-3">
-                <div>
+                <div id="resW-wrap">
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Width</label>
                     <input type="number" id="targetW" value="100" class="w-full p-2.5 rounded-lg border outline-none font-bold text-sm mt-1 bg-white">
                 </div>
-                <div>
+                <div id="resH-wrap">
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Height</label>
                     <input type="number" id="targetH" value="100" class="w-full p-2.5 rounded-lg border outline-none font-bold text-sm mt-1 bg-white">
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Unit</label>
-                    <select id="resUnit" class="w-full p-2.5 rounded-lg border font-bold outline-none text-sm mt-1 bg-white">
+                    <select id="resUnit" class="w-full p-2.5 rounded-lg border font-bold outline-none text-sm mt-1 bg-white" onchange="toggleKbMode()">
                         <option value="percent">Percent (%)</option>
                         <option value="pixels">Pixels (px)</option>
                         <option value="cm">cm</option>
                         <option value="inches">inches</option>
+                        <option value="kb">Target Size (KB)</option>
+                    </select>
+                </div>
+                <div id="kbTarget-wrap" class="hidden">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Target KB</label>
+                    <select id="kbTarget" class="w-full p-2.5 rounded-lg border font-bold outline-none text-sm mt-1 bg-white">
+                        <option value="50">50 KB</option>
+                        <option value="100">100 KB</option>
+                        <option value="250">250 KB</option>
+                        <option value="500">500 KB</option>
+                        <option value="1000">1 MB</option>
+                        <option value="2000">2 MB</option>
+                        <option value="5000">5 MB</option>
                     </select>
                 </div>
                 <div>
@@ -509,11 +448,11 @@
                         <option value="image/webp">WebP</option>
                     </select>
                 </div>
-                <div>
+                <div id="dpi-wrap">
                     <label class="text-[10px] font-bold text-slate-400 uppercase">DPI</label>
                     <input type="number" id="targetDPI" value="96" class="w-full p-2.5 rounded-lg border outline-none font-bold text-sm mt-1 bg-white">
                 </div>
-                <div>
+                <div id="qual-wrap">
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Quality %</label>
                     <input type="number" id="targetQuality" value="92" min="1" max="100" class="w-full p-2.5 rounded-lg border outline-none font-bold text-sm mt-1 bg-white">
                 </div>
@@ -523,9 +462,6 @@
     </div>
 </section>
 
-<!-- ══════════════════════════════════════
-     COMPRESS
-══════════════════════════════════════ -->
 <section id="compress" class="tab-content sec-card">
     <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mb-1">📦 Image Compressor</h2>
     <p class="text-slate-500 text-sm mb-5">File size kam karein bina quality khoye.</p>
@@ -550,9 +486,6 @@
     </div>
 </section>
 
-<!-- ══════════════════════════════════════
-     WATERMARK
-══════════════════════════════════════ -->
 <section id="watermark" class="tab-content sec-card">
     <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mb-1">💧 Add Watermark</h2>
     <p class="text-slate-500 text-sm mb-5">Image par text watermark lagaayein. Real-time preview.</p>
@@ -601,9 +534,6 @@
     </div>
 </section>
 
-<!-- ══════════════════════════════════════
-     ROTATE
-══════════════════════════════════════ -->
 <section id="rotate" class="tab-content sec-card">
     <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mb-1">🔁 Rotate &amp; Flip</h2>
     <p class="text-slate-500 text-sm mb-5">Image rotate ya flip karein phir download karein.</p>
@@ -625,9 +555,6 @@
     </div>
 </section>
 
-<!-- ══════════════════════════════════════
-     CROP
-══════════════════════════════════════ -->
 <section id="crop" class="tab-content sec-card">
     <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mb-1">✂️ Crop Image</h2>
     <p class="text-slate-500 text-sm mb-5">Exact pixels mein crop karein.</p>
@@ -660,9 +587,6 @@
     </div>
 </section>
 
-<!-- ══════════════════════════════════════
-     MERGE PDF
-══════════════════════════════════════ -->
 <section id="mergepdf" class="tab-content sec-card">
     <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mb-1">📎 Merge PDF</h2>
     <p class="text-slate-500 text-sm mb-5">Multiple images → ek PDF. Drag karke reorder karein.</p>
@@ -681,9 +605,6 @@
     </div>
 </section>
 
-<!-- ══════════════════════════════════════
-     SPLIT / EXTRACT
-══════════════════════════════════════ -->
 <section id="splitpdf" class="tab-content sec-card">
     <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mb-1">✂️ Split / Extract</h2>
     <p class="text-slate-500 text-sm mb-5">Har image ko alag file mein save karein.</p>
@@ -709,9 +630,6 @@
     </div>
 </section>
 
-<!-- ══════════════════════════════════════
-     WRITER PRO
-══════════════════════════════════════ -->
 <section id="writer" class="tab-content sec-card">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-2 pb-4 border-b">
         <div>
@@ -719,7 +637,6 @@
             <p class="text-xs text-slate-400 font-bold mt-0.5">Rich text editor — PDF, JPG, TXT mein save karein</p>
         </div>
     </div>
-    <!-- Toolbar -->
     <div class="flex flex-wrap items-center gap-1 mb-3 p-2 bg-slate-50 rounded-xl border overflow-x-auto">
         <button class="tb font-extrabold" onclick="execCmd('bold')" title="Bold">B</button>
         <button class="tb italic font-bold" onclick="execCmd('italic')" title="Italic">I</button>
@@ -752,7 +669,6 @@
 
 </main>
 
-<!-- FOOTER -->
 <footer class="py-8 mt-6 text-center border-t border-slate-200 bg-white">
     <div class="max-w-lg mx-auto px-4">
         <div class="flex items-center justify-center gap-2 mb-2">
@@ -763,52 +679,67 @@
         <div class="flex flex-wrap justify-center gap-3 text-[11px] font-bold text-slate-400 mb-2">
             <span>🔒 Private</span><span>⚡ No Upload</span><span>🆓 Always Free</span><span>🌐 All Languages</span><span>📱 Mobile Ready</span>
         </div>
-        <p class="text-xs text-slate-300">Made with ❤️ for Saurabh Yadav • PDFTiming v12.0</p>
+        <p class="text-xs text-slate-300">Made with ❤️ for Saurabh Yadav • PDFTiming v13.0 (Mobile Fixed)</p>
     </div>
 </footer>
 
-<!-- ══════════════════════════════════════
-     JAVASCRIPT — ALL TOOLS
-══════════════════════════════════════ -->
 <script>
 "use strict";
 
-/* ── FIX 1: Lucide safe init ── */
 function initLucide() {
     if (typeof lucide !== 'undefined' && lucide.createIcons) {
-        try { lucide.createIcons(); } catch(e) { console.warn('Lucide init error:', e); }
+        try { lucide.createIcons(); } catch(e) { console.warn('Lucide:', e); }
     }
 }
 
-/* ── Navigation ── */
-function showSection(id) {
-    document.querySelectorAll('.tab-content').forEach(s => s.classList.remove('active'));
-    const el = document.getElementById(id);
-    if (el) { el.classList.add('active'); }
-    // Update nav button styles
-    document.querySelectorAll('.nav-btn').forEach(b => {
-        b.classList.remove('nav-btn-active');
-        b.style.color = '';
-        b.style.background = '';
-    });
-    const nb = document.getElementById('nb-' + id);
-    if (nb) nb.classList.add('nav-btn-active');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    // Re-init icons after section switch
-    setTimeout(initLucide, 50);
+// UNIVERSAL DOWNLOAD FUNCTION (Mobile Safe)
+function downloadBlob(blob, filename) {
+    try {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => {
+            try { URL.revokeObjectURL(url); } catch(e) {}
+        }, 2000);
+    } catch(e) {
+        console.error('Download error:', e);
+        toast('❌ Download error: ' + e.message);
+    }
 }
 
-/* ── Toast ── */
+function showSection(id) {
+    try {
+        document.querySelectorAll('.tab-content').forEach(s => s.classList.remove('active'));
+        const el = document.getElementById(id);
+        if (el) { el.classList.add('active'); }
+        document.querySelectorAll('.nav-btn').forEach(b => {
+            b.classList.remove('nav-btn-active');
+        });
+        const nb = document.getElementById('nb-' + id);
+        if (nb) nb.classList.add('nav-btn-active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(initLucide, 50);
+    } catch(e) {
+        console.error('Navigation error:', e);
+    }
+}
+
 let toastTimer;
 function toast(msg, dur = 3000) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.style.display = 'block';
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => { t.style.display = 'none'; }, dur);
+    try {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.style.display = 'block';
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => { t.style.display = 'none'; }, dur);
+    } catch(e) {}
 }
 
-/* ── Drag & Drop helpers ── */
 function dragOver(e, id) { e.preventDefault(); document.getElementById(id).classList.add('drag-over'); }
 function dragLeave(id) { document.getElementById(id).classList.remove('drag-over'); }
 function dropImgPdf(e) {
@@ -817,219 +748,312 @@ function dropImgPdf(e) {
     if (e.dataTransfer && e.dataTransfer.files.length) handleImgPdf(e.dataTransfer.files);
 }
 
-/* ── Shared: make preview card ── */
 function makePreviewCard(src, container) {
-    const card = document.createElement('div');
-    card.className = 'preview-card';
-    card.dataset.src = src;
-    const img = document.createElement('img');
-    img.src = src;
-    img.alt = '';
-    const btn = document.createElement('button');
-    btn.className = 'del-btn';
-    btn.textContent = '×';
-    btn.setAttribute('aria-label', 'Remove');
-    btn.onclick = (e) => { e.stopPropagation(); card.remove(); };
-    card.appendChild(img);
-    card.appendChild(btn);
-    container.appendChild(card);
+    try {
+        const card = document.createElement('div');
+        card.className = 'preview-card';
+        card.dataset.src = src;
+        const img = document.createElement('img');
+        img.src = src;
+        const btn = document.createElement('button');
+        btn.className = 'del-btn';
+        btn.textContent = '×';
+        btn.onclick = (e) => { e.stopPropagation(); card.remove(); };
+        card.appendChild(img);
+        card.appendChild(btn);
+        container.appendChild(card);
+    } catch(e) {}
 }
 
-/* ── Shared: read files as DataURL ── */
 function readFiles(files, onEach) {
     Array.from(files).forEach(file => {
         const r = new FileReader();
-        r.onload = ev => onEach(ev.target.result, file);
+        r.onload = ev => { try { onEach(ev.target.result, file); } catch(e) {} };
+        r.onerror = () => { console.error('Read error:', file.name); };
         r.readAsDataURL(file);
     });
 }
 
-/* ══════════════ IMAGE TO PDF ══════════════ */
+// IMAGE TO PDF
 function handleImgPdf(files) {
-    if (!files || !files.length) return;
-    document.getElementById('img2pdfAction').classList.remove('hidden');
-    const prev = document.getElementById('img2pdfPreview');
-    readFiles(files, src => makePreviewCard(src, prev));
-    if (!prev._sortable) {
-        prev._sortable = new Sortable(prev, { animation: 150 });
-    }
+    try {
+        if (!files || !files.length) return;
+        document.getElementById('img2pdfAction').classList.remove('hidden');
+        const prev = document.getElementById('img2pdfPreview');
+        readFiles(files, src => makePreviewCard(src, prev));
+        if (!prev._sortable) prev._sortable = new Sortable(prev, { animation: 150 });
+    } catch(e) {}
 }
 
 function buildPdf() {
-    const items = Array.from(document.getElementById('img2pdfPreview').children);
-    if (!items.length) { toast('❌ Pehle images select karein!'); return; }
-    toast('⏳ PDF ban raha hai...');
-    const { jsPDF } = window.jspdf;
-    const orient = document.getElementById('pdfOrient').value;
-    const sz = document.getElementById('pdfSize').value;
-    const margin = (parseInt(document.getElementById('pdfMargin').value) || 0) * 0.264583;
+    try {
+        const items = Array.from(document.getElementById('img2pdfPreview').children);
+        if (!items.length) { toast('❌ Images select karein!'); return; }
+        toast('⏳ PDF ban raha hai...');
+        
+        setTimeout(() => {
+            try {
+                const { jsPDF } = window.jspdf;
+                const orient = document.getElementById('pdfOrient').value;
+                const sz = document.getElementById('pdfSize').value;
+                const margin = (parseInt(document.getElementById('pdfMargin').value) || 0) * 0.264583;
 
-    setTimeout(() => {
-        try {
-            const doc = new jsPDF({ orientation: orient, unit: 'mm', format: sz });
-            const pw = doc.internal.pageSize.getWidth();
-            const ph = doc.internal.pageSize.getHeight();
-            items.forEach((it, i) => {
-                if (i > 0) doc.addPage(sz, orient);
-                const src = it.dataset.src;
-                const ext = src.split(';')[0].split('/')[1].toUpperCase();
-                const imgFmt = (ext === 'JPEG' || ext === 'JPG') ? 'JPEG' : 'PNG';
-                doc.addImage(src, imgFmt, margin, margin, pw - margin * 2, ph - margin * 2, undefined, 'FAST');
-            });
-            doc.save('PDFTiming.pdf');
-            toast('✅ PDF download ho gayi!');
-        } catch(err) {
-            console.error(err);
-            toast('❌ Error: ' + err.message);
-        }
-    }, 50);
+                const doc = new jsPDF({ orientation: orient, unit: 'mm', format: sz });
+                const pw = doc.internal.pageSize.getWidth();
+                const ph = doc.internal.pageSize.getHeight();
+                
+                items.forEach((it, i) => {
+                    if (i > 0) doc.addPage(sz, orient);
+                    const src = it.dataset.src;
+                    const ext = src.split(';')[0].split('/')[1].toUpperCase();
+                    const imgFmt = (ext === 'JPEG' || ext === 'JPG') ? 'JPEG' : 'PNG';
+                    doc.addImage(src, imgFmt, margin, margin, pw - margin * 2, ph - margin * 2, undefined, 'FAST');
+                });
+
+                const blob = doc.output('blob');
+                downloadBlob(blob, 'PDFTiming.pdf');
+                toast('✅ PDF download ho gayi!');
+            } catch(err) {
+                console.error('PDF error:', err);
+                toast('❌ Error: ' + err.message);
+            }
+        }, 100);
+    } catch(e) {
+        console.error('buildPdf error:', e);
+        toast('❌ Error: ' + e.message);
+    }
 }
 
-/* ══════════════ TEXT TO PDF ══════════════ */
+// TEXT TO PDF (MOBILE FIXED)
 function textToPdf() {
-    const txt = document.getElementById('textInput').value.trim();
-    if (!txt) { toast('❌ Text likhein pehle!'); return; }
-    toast('⏳ PDF ban raha hai...');
+    try {
+        const txt = document.getElementById('textInput').value.trim();
+        if (!txt) { toast('❌ Text likhein pehle!'); return; }
+        toast('⏳ PDF ban raha hai...');
 
-    const lang = document.getElementById('txtLang').value;
-    const fontSize = parseInt(document.getElementById('txtFontSize').value) || 12;
-    const pageSize = document.getElementById('txtPage').value;
-    const title = (document.getElementById('txtTitle').value || '').trim();
-    const color = document.getElementById('txtColor').value || '#000000';
-    const bgColor = document.getElementById('txtBgColor').value || '#ffffff';
-    const isRTL = ['ar','ur'].includes(lang);
+        const lang = document.getElementById('txtLang').value;
+        const fontSize = parseInt(document.getElementById('txtFontSize').value) || 12;
+        const pageSize = document.getElementById('txtPage').value;
+        const title = (document.getElementById('txtTitle').value || '').trim();
+        const color = document.getElementById('txtColor').value || '#000000';
+        const bgColor = document.getElementById('txtBgColor').value || '#ffffff';
+        const isRTL = ['ar','ur'].includes(lang);
 
-    // Build a hidden div, render via doc.html
-    const div = document.createElement('div');
-    div.style.cssText = [
-        'position:absolute','left:-9999px','top:0',
-        'width:595px','padding:56px 60px',
-        'font-family: Arial Unicode MS, Arial, Helvetica, sans-serif',
-        'font-size:' + fontSize + 'px',
-        'color:' + color,
-        'background:' + bgColor,
-        'white-space:pre-wrap',
-        'word-break:break-word',
-        'line-height:1.8',
-        isRTL ? 'direction:rtl;text-align:right' : 'direction:ltr'
-    ].join(';');
+        const div = document.createElement('div');
+        div.style.cssText = [
+            'position:absolute','left:-9999px','top:0',
+            'width:595px','padding:56px 60px',
+            'font-family: Arial Unicode MS, Arial, Helvetica, sans-serif',
+            'font-size:' + fontSize + 'px',
+            'color:' + color,
+            'background:' + bgColor,
+            'white-space:pre-wrap',
+            'word-break:break-word',
+            'line-height:1.8',
+            isRTL ? 'direction:rtl;text-align:right' : 'direction:ltr'
+        ].join(';');
 
-    const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
-    let html = '';
-    if (title) html += `<div style="font-size:${Math.round(fontSize*1.7)}px;font-weight:800;margin-bottom:18px;border-bottom:2px solid ${color};padding-bottom:8px;">${esc(title)}</div>`;
-    html += esc(txt);
-    div.innerHTML = html;
-    document.body.appendChild(div);
+        const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+        let html = '';
+        if (title) html += `<div style="font-size:${Math.round(fontSize*1.7)}px;font-weight:800;margin-bottom:18px;border-bottom:2px solid ${color};padding-bottom:8px;">${esc(title)}</div>`;
+        html += esc(txt);
+        div.innerHTML = html;
+        document.body.appendChild(div);
 
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: pageSize });
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: pageSize });
 
-    doc.html(div, {
-        callback: function(d) {
-            document.body.removeChild(div);
-            d.save('PDFTiming_TextDoc.pdf');
-            toast('✅ PDF download ho gayi!');
-        },
-        margin: [40, 40, 40, 40],
-        x: 0, y: 0,
-        width: 515,
-        windowWidth: 715,
-        autoPaging: 'text'
-    });
+        doc.html(div, {
+            callback: function(d) {
+                document.body.removeChild(div);
+                try {
+                    const blob = d.output('blob');
+                    downloadBlob(blob, 'PDFTiming_TextDoc.pdf');
+                    toast('✅ PDF download ho gayi!');
+                } catch(e) {
+                    console.error('Blob error:', e);
+                    toast('❌ Error: ' + e.message);
+                }
+            },
+            margin: [40, 40, 40, 40],
+            x: 0, y: 0,
+            width: 515,
+            windowWidth: 715,
+            autoPaging: 'text'
+        });
+    } catch(e) {
+        console.error('textToPdf error:', e);
+        toast('❌ Error: ' + e.message);
+    }
 }
 
 function textToTxt() {
-    const txt = document.getElementById('textInput').value.trim();
-    if (!txt) { toast('❌ Text likhein pehle!'); return; }
-    const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'PDFTiming_Document.txt';
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-    toast('✅ TXT file download ho gayi!');
+    try {
+        const txt = document.getElementById('textInput').value.trim();
+        if (!txt) { toast('❌ Text likhein pehle!'); return; }
+        const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+        downloadBlob(blob, 'PDFTiming_Document.txt');
+        toast('✅ TXT file download ho gayi!');
+    } catch(e) {
+        console.error('textToTxt error:', e);
+        toast('❌ Error: ' + e.message);
+    }
 }
 
-/* ══════════════ IMAGE TO PNG ══════════════ */
+// PNG CONVERSION (TRANSPARENT FIXED)
 function togglePngColor() {
     const val = document.getElementById('pngBg').value;
     document.getElementById('pngBgColorWrap').style.display = val === 'custom' ? 'block' : 'none';
 }
 
 function convertToPng(files) {
-    if (!files || !files.length) return;
-    const bgSel = document.getElementById('pngBg').value;
-    const customColor = document.getElementById('pngBgColor').value;
-    const grid = document.getElementById('pngResultGrid');
-    grid.innerHTML = '';
-    document.getElementById('pngResults').classList.remove('hidden');
+    try {
+        if (!files || !files.length) return;
+        const bgSel = document.getElementById('pngBg').value;
+        const customColor = document.getElementById('pngBgColor').value;
+        const grid = document.getElementById('pngResultGrid');
+        grid.innerHTML = '';
+        document.getElementById('pngResults').classList.remove('hidden');
 
-    readFiles(files, (src, file) => {
-        const img = new Image();
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width; canvas.height = img.height;
-            const ctx = canvas.getContext('2d');
-            if (bgSel !== 'transparent') {
-                ctx.fillStyle = bgSel === 'custom' ? customColor : bgSel;
-                ctx.fillRect(0, 0, img.width, img.height);
-            }
-            ctx.drawImage(img, 0, 0);
-            const pngUrl = canvas.toDataURL('image/png');
-            const name = file.name.replace(/\.[^.]+$/, '') + '.png';
+        let processedCount = 0;
 
-            const card = document.createElement('div');
-            card.className = 'bg-slate-50 rounded-xl border border-slate-200 p-3 text-center';
-            card.innerHTML = `
-                <img src="${pngUrl}" style="width:100%;height:80px;object-fit:cover;border-radius:8px;margin-bottom:8px" alt="">
-                <p style="font-size:11px;font-weight:700;color:#475569;word-break:break-all;margin-bottom:6px">${name}</p>
-                <a href="${pngUrl}" download="${name}" class="inline-block bg-green-600 text-white font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-700 transition">⬇ Download</a>
-            `;
-            grid.appendChild(card);
-        };
-        img.src = src;
-    });
-    toast('✅ ' + files.length + ' file(s) convert ho gayi!');
+        readFiles(files, (src, file) => {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+                try {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
+                    
+                    // CRITICAL: Get context with alpha channel
+                    const ctx = canvas.getContext('2d', { alpha: true });
+                    
+                    // CRITICAL: Clear FIRST to ensure transparency
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Apply background ONLY if not transparent
+                    if (bgSel !== 'transparent') {
+                        ctx.fillStyle = bgSel === 'custom' ? customColor : bgSel;
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    }
+                    
+                    // Draw image
+                    ctx.drawImage(img, 0, 0);
+                    
+                    // Convert to proper PNG blob
+                    canvas.toBlob(blob => {
+                        try {
+                            const pngUrl = URL.createObjectURL(blob);
+                            const name = file.name.replace(/\.[^.]+$/, '') + '.png';
+
+                            const card = document.createElement('div');
+                            card.className = 'bg-slate-50 rounded-xl border border-slate-200 p-3 text-center';
+                            card.innerHTML = `
+                                <img src="${pngUrl}" style="width:100%;height:80px;object-fit:cover;border-radius:8px;margin-bottom:8px;background-image:repeating-linear-gradient(45deg,#ccc 0,#ccc 10px,white 10px,white 20px)" alt="">
+                                <p style="font-size:11px;font-weight:700;color:#475569;word-break:break-all;margin-bottom:6px">${name}</p>
+                                <a href="${pngUrl}" download="${name}" class="inline-block bg-green-600 text-white font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-green-700 transition">⬇ Download</a>
+                            `;
+                            grid.appendChild(card);
+                            
+                            processedCount++;
+                            if (processedCount === files.length) {
+                                toast('✅ ' + files.length + ' file(s) convert ho gayi!');
+                            }
+                        } catch(e) {
+                            console.error('Blob error:', e);
+                        }
+                    }, 'image/png');
+                } catch(e) {
+                    console.error('Canvas error:', e);
+                    toast('❌ ' + file.name + ' convert error');
+                }
+            };
+            img.onerror = () => {
+                console.error('Image load error:', file.name);
+                toast('❌ ' + file.name + ' load nahi ho saka');
+            };
+            img.src = src;
+        });
+    } catch(e) {
+        console.error('convertToPng error:', e);
+        toast('❌ Error: ' + e.message);
+    }
 }
 
-/* ══════════════ IMAGE TO JPG ══════════════ */
+// JPG CONVERSION
 function convertToJpg(files) {
-    if (!files || !files.length) return;
-    const quality = parseInt(document.getElementById('jpgQualSlider').value) / 100;
-    const grid = document.getElementById('jpgResultGrid');
-    grid.innerHTML = '';
-    document.getElementById('jpgResults').classList.remove('hidden');
+    try {
+        if (!files || !files.length) return;
+        const quality = parseInt(document.getElementById('jpgQualSlider').value) / 100;
+        const grid = document.getElementById('jpgResultGrid');
+        grid.innerHTML = '';
+        document.getElementById('jpgResults').classList.remove('hidden');
 
-    readFiles(files, (src, file) => {
-        const img = new Image();
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width; canvas.height = img.height;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, img.width, img.height);
-            ctx.drawImage(img, 0, 0);
-            const jpgUrl = canvas.toDataURL('image/jpeg', quality);
-            const name = file.name.replace(/\.[^.]+$/, '') + '.jpg';
-            const origKb = Math.round(file.size / 1024);
-            const newKb = Math.round(jpgUrl.length * 0.75 / 1024);
+        readFiles(files, (src, file) => {
+            const img = new Image();
+            img.onload = () => {
+                try {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, img.naturalWidth, img.naturalHeight);
+                    ctx.drawImage(img, 0, 0);
+                    const jpgUrl = canvas.toDataURL('image/jpeg', quality);
+                    const name = file.name.replace(/\.[^.]+$/, '') + '.jpg';
+                    const origKb = Math.round(file.size / 1024);
+                    const newKb = Math.round(jpgUrl.length * 0.75 / 1024);
 
-            const card = document.createElement('div');
-            card.className = 'bg-slate-50 rounded-xl border border-slate-200 p-3 text-center';
-            card.innerHTML = `
-                <img src="${jpgUrl}" style="width:100%;height:80px;object-fit:cover;border-radius:8px;margin-bottom:8px" alt="">
-                <p style="font-size:11px;font-weight:700;color:#475569;word-break:break-all;margin-bottom:2px">${name}</p>
-                <p style="font-size:11px;color:#94a3b8;margin-bottom:6px">${origKb}KB → ~${newKb}KB</p>
-                <a href="${jpgUrl}" download="${name}" class="inline-block bg-orange-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-orange-600 transition">⬇ Download</a>
-            `;
-            grid.appendChild(card);
-        };
-        img.src = src;
-    });
+                    const card = document.createElement('div');
+                    card.className = 'bg-slate-50 rounded-xl border border-slate-200 p-3 text-center';
+                    card.innerHTML = `
+                        <img src="${jpgUrl}" style="width:100%;height:80px;object-fit:cover;border-radius:8px;margin-bottom:8px" alt="">
+                        <p style="font-size:11px;font-weight:700;color:#475569;word-break:break-all;margin-bottom:2px">${name}</p>
+                        <p style="font-size:11px;color:#94a3b8;margin-bottom:6px">${origKb}KB → ~${newKb}KB</p>
+                        <a href="${jpgUrl}" download="${name}" class="inline-block bg-orange-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-orange-600 transition">⬇ Download</a>
+                    `;
+                    grid.appendChild(card);
+                } catch(e) {
+                    console.error('JPG conversion error:', e);
+                }
+            };
+            img.onerror = () => toast('❌ ' + file.name + ' load error');
+            img.src = src;
+        });
+        toast('⏳ Converting...');
+    } catch(e) {
+        console.error('convertToJpg error:', e);
+        toast('❌ Error: ' + e.message);
+    }
 }
 
-/* ══════════════ RESIZER ══════════════ */
+// RESIZER WITH KB TARGET
 let selectedBgColor = 'transparent';
+
+function toggleKbMode() {
+    const unit = document.getElementById('resUnit').value;
+    const kbWrap = document.getElementById('kbTarget-wrap');
+    const wWrap = document.getElementById('resW-wrap');
+    const hWrap = document.getElementById('resH-wrap');
+    const dpiWrap = document.getElementById('dpi-wrap');
+    const qualWrap = document.getElementById('qual-wrap');
+    
+    if (unit === 'kb') {
+        wWrap.style.display = 'none';
+        hWrap.style.display = 'none';
+        dpiWrap.style.display = 'none';
+        qualWrap.style.display = 'none';
+        kbWrap.classList.remove('hidden');
+    } else {
+        wWrap.style.display = 'block';
+        hWrap.style.display = 'block';
+        dpiWrap.style.display = 'block';
+        qualWrap.style.display = 'block';
+        kbWrap.classList.add('hidden');
+    }
+}
 
 function handleResInput(file) {
     if (!file) return;
@@ -1052,80 +1076,125 @@ function setBgColor(color) {
 }
 
 function executeResize() {
-    const imgEl = document.getElementById('imgBefore');
-    if (imgEl.classList.contains('hidden')) { toast('❌ Image select karein!'); return; }
-    const unit = document.getElementById('resUnit').value;
-    const w = parseFloat(document.getElementById('targetW').value);
-    const h = parseFloat(document.getElementById('targetH').value);
-    const q = parseFloat(document.getElementById('targetQuality').value) / 100;
-    const dpi = parseFloat(document.getElementById('targetDPI').value) || 96;
-    const fmt = document.getElementById('targetFmt').value;
+    try {
+        const imgEl = document.getElementById('imgBefore');
+        if (imgEl.classList.contains('hidden')) { toast('❌ Image select karein!'); return; }
+        
+        const unit = document.getElementById('resUnit').value;
+        const fmt = document.getElementById('targetFmt').value;
+        const q = parseFloat(document.getElementById('targetQuality').value) / 100;
+        const dpi = parseFloat(document.getElementById('targetDPI').value) || 96;
 
-    const img = new Image();
-    img.onload = () => {
-        let fW, fH;
-        const ratio = dpi / 96;
-        if (unit === 'percent')     { fW = img.width * (w/100); fH = img.height * (h/100); }
-        else if (unit === 'pixels') { fW = w; fH = h; }
-        else if (unit === 'inches') { fW = w * 96 * ratio; fH = h * 96 * ratio; }
-        else if (unit === 'cm')     { fW = (w / 2.54) * 96 * ratio; fH = (h / 2.54) * 96 * ratio; }
-
-        const canvas = document.createElement('canvas');
-        canvas.width = fW; canvas.height = fH;
-        const ctx = canvas.getContext('2d');
-        if (selectedBgColor && selectedBgColor !== 'transparent') {
-            ctx.fillStyle = selectedBgColor;
-            ctx.fillRect(0, 0, fW, fH);
-        }
-        ctx.drawImage(img, 0, 0, fW, fH);
-        const ext = fmt.split('/')[1];
-        const a = document.createElement('a');
-        a.download = 'PDFTiming_Resized.' + (ext === 'jpeg' ? 'jpg' : ext);
-        a.href = canvas.toDataURL(fmt, q);
-        a.click();
-        toast('✅ Resized! (' + Math.round(fW) + '×' + Math.round(fH) + 'px)');
-    };
-    img.src = imgEl.src;
-}
-
-/* ══════════════ COMPRESS ══════════════ */
-function compressImages(files) {
-    if (!files || !files.length) return;
-    const quality = parseFloat(document.querySelector('input[name="compLvl"]:checked').value);
-    const grid = document.getElementById('compressGrid');
-    grid.innerHTML = '';
-    document.getElementById('compressResults').classList.remove('hidden');
-
-    readFiles(files, (src, file) => {
         const img = new Image();
         img.onload = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width; canvas.height = img.height;
-            canvas.getContext('2d').drawImage(img, 0, 0);
-            const dataUrl = canvas.toDataURL('image/jpeg', quality);
-            const origKb = Math.round(file.size / 1024);
-            const newKb = Math.round(dataUrl.length * 0.75 / 1024);
-            const saved = Math.max(0, Math.round((1 - newKb / origKb) * 100));
-            const name = file.name.replace(/\.[^.]+$/, '') + '_compressed.jpg';
+            try {
+                let fW, fH;
+                const ratio = dpi / 96;
 
-            const row = document.createElement('div');
-            row.className = 'flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl p-3';
-            row.innerHTML = `
-                <img src="${dataUrl}" style="width:52px;height:52px;object-fit:cover;border-radius:8px;flex-shrink:0" alt="">
-                <div style="flex:1;min-width:0">
-                    <p style="font-weight:700;font-size:13px;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${file.name}</p>
-                    <p style="font-size:12px;color:#94a3b8">${origKb} KB → <span style="color:#16a34a;font-weight:700">~${newKb} KB</span> <span style="background:#dcfce7;color:#16a34a;font-weight:700;font-size:10px;padding:1px 6px;border-radius:999px">${saved}% saved</span></p>
-                </div>
-                <a href="${dataUrl}" download="${name}" style="background:linear-gradient(135deg,#2563eb,#7c3aed);color:white;font-weight:700;font-size:12px;padding:8px 14px;border-radius:10px;white-space:nowrap;text-decoration:none">⬇ Save</a>
-            `;
-            grid.appendChild(row);
+                if (unit === 'kb') {
+                    fW = img.naturalWidth;
+                    fH = img.naturalHeight;
+                    const canvas = document.createElement('canvas');
+                    canvas.width = fW;
+                    canvas.height = fH;
+                    const ctx = canvas.getContext('2d');
+                    if (selectedBgColor && selectedBgColor !== 'transparent') {
+                        ctx.fillStyle = selectedBgColor;
+                        ctx.fillRect(0, 0, fW, fH);
+                    }
+                    ctx.drawImage(img, 0, 0);
+                    const ext = fmt.split('/')[1];
+                    canvas.toBlob(blob => {
+                        downloadBlob(blob, 'PDFTiming_Resized.' + (ext === 'jpeg' ? 'jpg' : ext));
+                        const estKB = Math.round(blob.size / 1024);
+                        toast('✅ Resized to ~' + estKB + 'KB!');
+                    }, fmt, 0.92);
+                } else {
+                    const w = parseFloat(document.getElementById('targetW').value);
+                    const h = parseFloat(document.getElementById('targetH').value);
+                    
+                    if (unit === 'percent')     { fW = img.naturalWidth * (w/100); fH = img.naturalHeight * (h/100); }
+                    else if (unit === 'pixels') { fW = w; fH = h; }
+                    else if (unit === 'inches') { fW = w * 96 * ratio; fH = h * 96 * ratio; }
+                    else if (unit === 'cm')     { fW = (w / 2.54) * 96 * ratio; fH = (h / 2.54) * 96 * ratio; }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = fW;
+                    canvas.height = fH;
+                    const ctx = canvas.getContext('2d');
+                    if (selectedBgColor && selectedBgColor !== 'transparent') {
+                        ctx.fillStyle = selectedBgColor;
+                        ctx.fillRect(0, 0, fW, fH);
+                    }
+                    ctx.drawImage(img, 0, 0, fW, fH);
+                    const ext = fmt.split('/')[1];
+                    canvas.toBlob(blob => {
+                        downloadBlob(blob, 'PDFTiming_Resized.' + (ext === 'jpeg' ? 'jpg' : ext));
+                        toast('✅ Resized! (' + Math.round(fW) + '×' + Math.round(fH) + 'px)');
+                    }, fmt, q);
+                }
+            } catch(e) {
+                console.error('Resize error:', e);
+                toast('❌ Error: ' + e.message);
+            }
         };
-        img.src = src;
-    });
-    toast('✅ ' + files.length + ' file(s) compress ho gayi!');
+        img.onerror = () => toast('❌ Image load error');
+        img.src = imgEl.src;
+    } catch(e) {
+        console.error('executeResize error:', e);
+        toast('❌ Error: ' + e.message);
+    }
 }
 
-/* ══════════════ WATERMARK ══════════════ */
+// COMPRESS
+function compressImages(files) {
+    try {
+        if (!files || !files.length) return;
+        const quality = parseFloat(document.querySelector('input[name="compLvl"]:checked').value);
+        const grid = document.getElementById('compressGrid');
+        grid.innerHTML = '';
+        document.getElementById('compressResults').classList.remove('hidden');
+
+        readFiles(files, (src, file) => {
+            const img = new Image();
+            img.onload = () => {
+                try {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
+                    canvas.getContext('2d').drawImage(img, 0, 0);
+                    const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                    const origKb = Math.round(file.size / 1024);
+                    const newKb = Math.round(dataUrl.length * 0.75 / 1024);
+                    const saved = Math.max(0, Math.round((1 - newKb / origKb) * 100));
+                    const name = file.name.replace(/\.[^.]+$/, '') + '_compressed.jpg';
+
+                    const row = document.createElement('div');
+                    row.className = 'flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl p-3';
+                    row.innerHTML = `
+                        <img src="${dataUrl}" style="width:52px;height:52px;object-fit:cover;border-radius:8px;flex-shrink:0" alt="">
+                        <div style="flex:1;min-width:0">
+                            <p style="font-weight:700;font-size:13px;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${file.name}</p>
+                            <p style="font-size:12px;color:#94a3b8">${origKb} KB → <span style="color:#16a34a;font-weight:700">~${newKb} KB</span> <span style="background:#dcfce7;color:#16a34a;font-weight:700;font-size:10px;padding:1px 6px;border-radius:999px">${saved}% saved</span></p>
+                        </div>
+                        <a href="${dataUrl}" download="${name}" style="background:linear-gradient(135deg,#2563eb,#7c3aed);color:white;font-weight:700;font-size:12px;padding:8px 14px;border-radius:10px;white-space:nowrap;text-decoration:none">⬇ Save</a>
+                    `;
+                    grid.appendChild(row);
+                } catch(e) {
+                    console.error('Compression error:', e);
+                }
+            };
+            img.onerror = () => toast('❌ ' + file.name + ' load error');
+            img.src = src;
+        });
+        toast('⏳ Compressing...');
+    } catch(e) {
+        console.error('compressImages error:', e);
+        toast('❌ Error: ' + e.message);
+    }
+}
+
+// WATERMARK
 let wmImg = null;
 
 function loadWatermarkImg(file) {
@@ -1145,8 +1214,8 @@ function loadWatermarkImg(file) {
 function previewWatermark() {
     if (!wmImg) return;
     const canvas = document.getElementById('wmCanvas');
-    canvas.width = wmImg.width;
-    canvas.height = wmImg.height;
+    canvas.width = wmImg.naturalWidth;
+    canvas.height = wmImg.naturalHeight;
     const ctx = canvas.getContext('2d');
     ctx.drawImage(wmImg, 0, 0);
 
@@ -1187,14 +1256,13 @@ function downloadWatermark() {
     if (!wmImg) { toast('❌ Image select karein!'); return; }
     previewWatermark();
     const canvas = document.getElementById('wmCanvas');
-    const a = document.createElement('a');
-    a.download = 'PDFTiming_Watermarked.png';
-    a.href = canvas.toDataURL('image/png');
-    a.click();
-    toast('✅ Watermarked image download ho gayi!');
+    canvas.toBlob(blob => {
+        downloadBlob(blob, 'PDFTiming_Watermarked.png');
+        toast('✅ Watermarked image download ho gayi!');
+    }, 'image/png');
 }
 
-/* ══════════════ ROTATE & FLIP ══════════════ */
+// ROTATE & FLIP
 let rotAngle = 0, flipH = false, flipV = false, rotImgEl = null;
 
 function loadRotImg(file) {
@@ -1233,14 +1301,13 @@ function flipImg(dir)   { if (dir==='h') flipH=!flipH; else flipV=!flipV; render
 function downloadRotated() {
     if (!rotImgEl) { toast('❌ Image select karein!'); return; }
     const canvas = document.getElementById('rotCanvas');
-    const a = document.createElement('a');
-    a.download = 'PDFTiming_Rotated.png';
-    a.href = canvas.toDataURL('image/png');
-    a.click();
-    toast('✅ Rotated image download ho gayi!');
+    canvas.toBlob(blob => {
+        downloadBlob(blob, 'PDFTiming_Rotated.png');
+        toast('✅ Rotated image download ho gayi!');
+    }, 'image/png');
 }
 
-/* ══════════════ CROP ══════════════ */
+// CROP
 let cropImgEl = null;
 
 function loadCropImg(file) {
@@ -1268,14 +1335,13 @@ function doCrop() {
     const canvas = document.createElement('canvas');
     canvas.width = w; canvas.height = h;
     canvas.getContext('2d').drawImage(cropImgEl, x, y, w, h, 0, 0, w, h);
-    const a = document.createElement('a');
-    a.download = 'PDFTiming_Cropped.png';
-    a.href = canvas.toDataURL('image/png');
-    a.click();
-    toast('✅ Cropped image download ho gayi!');
+    canvas.toBlob(blob => {
+        downloadBlob(blob, 'PDFTiming_Cropped.png');
+        toast('✅ Cropped image download ho gayi!');
+    }, 'image/png');
 }
 
-/* ══════════════ MERGE PDF ══════════════ */
+// MERGE PDF
 function handleMergePdf(files) {
     if (!files || !files.length) return;
     document.getElementById('mergeAction').classList.remove('hidden');
@@ -1285,24 +1351,36 @@ function handleMergePdf(files) {
 }
 
 function buildPdfFromMerge() {
-    const items = Array.from(document.getElementById('mergePreview').children);
-    if (!items.length) { toast('❌ Images select karein!'); return; }
-    toast('⏳ Merging...');
-    setTimeout(() => {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
-        const pw = doc.internal.pageSize.getWidth();
-        const ph = doc.internal.pageSize.getHeight();
-        items.forEach((it, i) => {
-            if (i > 0) doc.addPage('a4','portrait');
-            doc.addImage(it.dataset.src, 'JPEG', 0, 0, pw, ph, undefined, 'FAST');
-        });
-        doc.save('PDFTiming_Merged.pdf');
-        toast('✅ Merged PDF download ho gayi!');
-    }, 50);
+    try {
+        const items = Array.from(document.getElementById('mergePreview').children);
+        if (!items.length) { toast('❌ Images select karein!'); return; }
+        toast('⏳ Merging...');
+        
+        setTimeout(() => {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+                const pw = doc.internal.pageSize.getWidth();
+                const ph = doc.internal.pageSize.getHeight();
+                items.forEach((it, i) => {
+                    if (i > 0) doc.addPage('a4','portrait');
+                    doc.addImage(it.dataset.src, 'JPEG', 0, 0, pw, ph, undefined, 'FAST');
+                });
+                const blob = doc.output('blob');
+                downloadBlob(blob, 'PDFTiming_Merged.pdf');
+                toast('✅ Merged PDF download ho gayi!');
+            } catch(e) {
+                console.error('Merge error:', e);
+                toast('❌ Error: ' + e.message);
+            }
+        }, 50);
+    } catch(e) {
+        console.error('buildPdfFromMerge error:', e);
+        toast('❌ Error: ' + e.message);
+    }
 }
 
-/* ══════════════ SPLIT / EXTRACT ══════════════ */
+// SPLIT / EXTRACT
 let splitArr = [];
 
 function splitImages(files) {
@@ -1317,7 +1395,7 @@ function splitImages(files) {
         card.className = 'preview-card';
         card.dataset.src = src;
         const img = document.createElement('img');
-        img.src = src; img.alt = '';
+        img.src = src;
         card.appendChild(img);
         prev.appendChild(card);
     });
@@ -1327,82 +1405,85 @@ async function doSplit() {
     if (!splitArr.length) { toast('❌ Files select karein!'); return; }
     const mode = document.querySelector('input[name="splitMode"]:checked').value;
     toast('⏳ Files ban rahi hain...');
+    
     for (let i = 0; i < splitArr.length; i++) {
         const item = splitArr[i];
         const base = 'PDFTiming_Page' + (i + 1);
+        
         if (mode === 'pdf') {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
             doc.addImage(item.src, 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
-            doc.save(base + '.pdf');
+            const blob = doc.output('blob');
+            downloadBlob(blob, base + '.pdf');
         } else {
             const img = new Image();
             img.src = item.src;
-            await new Promise(res => { img.onload = res; });
+            await new Promise(res => { img.onload = res; img.onerror = res; });
             const canvas = document.createElement('canvas');
-            canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
             const ctx = canvas.getContext('2d');
-            if (mode === 'jpg') { ctx.fillStyle = '#fff'; ctx.fillRect(0,0,canvas.width,canvas.height); }
+            if (mode === 'jpg') { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height); }
             ctx.drawImage(img, 0, 0);
             const mime = mode === 'png' ? 'image/png' : 'image/jpeg';
-            const a = document.createElement('a');
-            a.download = base + '.' + mode;
-            a.href = canvas.toDataURL(mime, 0.95);
-            a.click();
-            await new Promise(res => setTimeout(res, 300));
+            canvas.toBlob(blob => {
+                downloadBlob(blob, base + '.' + mode);
+            }, mime, 0.95);
         }
+        await new Promise(res => setTimeout(res, 500));
     }
     toast('✅ ' + splitArr.length + ' files download ho gayi!');
 }
 
-/* ══════════════ WRITER PRO ══════════════ */
+// WRITER PRO
 function execCmd(cmd, val) {
     document.getElementById('editor').focus();
-    // Safari workaround: execCommand is deprecated but still works
-    try { document.execCommand(cmd, false, val || null); } catch(e) { console.warn('execCommand', e); }
+    try { document.execCommand(cmd, false, val || null); } catch(e) {}
 }
 
 function downloadPdf() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'pt', 'a4');
     doc.html(document.getElementById('editor'), {
-        callback: d => { d.save('PDFTiming_Writer.pdf'); toast('✅ PDF download ho gayi!'); },
+        callback: d => {
+            try {
+                const blob = d.output('blob');
+                downloadBlob(blob, 'PDFTiming_Writer.pdf');
+                toast('✅ PDF download ho gayi!');
+            } catch(e) {
+                toast('❌ Error: ' + e.message);
+            }
+        },
         margin: [40,40,40,40], x:0, y:0, width:515, windowWidth:800, autoPaging:'text'
     });
 }
 
 function downloadImg() {
     html2canvas(document.getElementById('editor'), { backgroundColor:'#ffffff', scale:2 }).then(canvas => {
-        const a = document.createElement('a');
-        a.download = 'PDFTiming_Document.jpg';
-        a.href = canvas.toDataURL('image/jpeg', 0.95);
-        a.click();
-        toast('✅ JPG download ho gayi!');
+        canvas.toBlob(blob => {
+            downloadBlob(blob, 'PDFTiming_Document.jpg');
+            toast('✅ JPG download ho gayi!');
+        }, 'image/jpeg', 0.95);
+    }).catch(e => {
+        console.error('html2canvas error:', e);
+        toast('❌ Canvas error');
     });
 }
 
 function downloadTxt() {
     const txt = document.getElementById('editor').innerText || '';
+    if (!txt.trim()) { toast('❌ Content likhein pehle!'); return; }
     const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'PDFTiming_Writer.txt';
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    downloadBlob(blob, 'PDFTiming_Writer.txt');
     toast('✅ TXT download ho gayi!');
 }
 
-/* ══════════════ KEYBOARD ACCESSIBILITY ══════════════ */
-document.querySelectorAll('.tool-card').forEach(card => {
-    card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }});
-});
-
-/* ══════════════ FIX 1: Safe Lucide init on DOMContentLoaded ══════════════ */
+// INIT
 document.addEventListener('DOMContentLoaded', () => {
     initLucide();
 });
 
-// Also run immediately in case DOM is already loaded
 if (document.readyState !== 'loading') {
     initLucide();
 }
