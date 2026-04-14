@@ -679,7 +679,7 @@
         <div class="flex flex-wrap justify-center gap-3 text-[11px] font-bold text-slate-400 mb-2">
             <span>🔒 Private</span><span>⚡ No Upload</span><span>🆓 Always Free</span><span>🌐 All Languages</span><span>📱 Mobile Ready</span>
         </div>
-        <p class="text-xs text-slate-300">Made with ❤️ for Saurabh Yadav • PDFTiming v13.0 (Mobile Fixed)</p>
+        <p class="text-xs text-slate-300">made by saurabh yadav • PDFTiming v13.0 (Mobile Fixed)</p>
     </div>
 </footer>
 
@@ -802,17 +802,56 @@ function buildPdf() {
                 const pw = doc.internal.pageSize.getWidth();
                 const ph = doc.internal.pageSize.getHeight();
                 
-                items.forEach((it, i) => {
-                    if (i > 0) doc.addPage(sz, orient);
-                    const src = it.dataset.src;
-                    const ext = src.split(';')[0].split('/')[1].toUpperCase();
-                    const imgFmt = (ext === 'JPEG' || ext === 'JPG') ? 'JPEG' : 'PNG';
-                    doc.addImage(src, imgFmt, margin, margin, pw - margin * 2, ph - margin * 2, undefined, 'FAST');
+                (async () => {
+                    for (let i = 0; i < items.length; i++) {
+                        const it = items[i];
+                        if (i > 0) doc.addPage(sz, orient);
+                        const src = it.dataset.src;
+                        
+                        const safeImg = await new Promise((resolve) => {
+                            const img = new Image();
+                            img.onload = () => {
+                                const canvas = document.createElement('canvas');
+                                let cw = img.naturalWidth, ch = img.naturalHeight;
+                                // Limit max dimension to 2000px for safety on low-end/govt phones
+                                const maxDim = 2000;
+                                if (cw > maxDim || ch > maxDim) {
+                                    const r = Math.min(maxDim / cw, maxDim / ch);
+                                    cw = Math.floor(cw * r); ch = Math.floor(ch * r);
+                                }
+                                canvas.width = cw; canvas.height = ch;
+                                const ctx = canvas.getContext('2d');
+                                // Using #ffffff background to prevent transparent PNGs from becoming black
+                                ctx.fillStyle = '#ffffff';
+                                ctx.fillRect(0, 0, cw, ch);
+                                ctx.drawImage(img, 0, 0, cw, ch);
+                                resolve({ data: canvas.toDataURL('image/jpeg', 0.85), w: img.naturalWidth, h: img.naturalHeight });
+                            };
+                            img.onerror = () => resolve(null);
+                            img.src = src;
+                        });
+                        
+                        if (!safeImg) continue;
+                        
+                        const maxW = pw - margin * 2;
+                        const maxH = ph - margin * 2;
+                        const ratio = Math.min(maxW / safeImg.w, maxH / safeImg.h);
+                        
+                        const w = safeImg.w * ratio;
+                        const h = safeImg.h * ratio;
+                        const x = margin + (maxW - w) / 2;
+                        const y = margin + (maxH - h) / 2;
+                        
+                        // Force JPEG since we processed via canvas.toDataURL('image/jpeg')
+                        doc.addImage(safeImg.data, 'JPEG', x, y, w, h, undefined, 'FAST');
+                    }
+                    const blob = doc.output('blob');
+                    downloadBlob(blob, 'PDFTiming.pdf');
+                    toast('✅ PDF download ho gayi!');
+                })().catch(err => {
+                    console.error('PDF error:', err);
+                    toast('❌ Error: ' + err.message);
                 });
-
-                const blob = doc.output('blob');
-                downloadBlob(blob, 'PDFTiming.pdf');
-                toast('✅ PDF download ho gayi!');
             } catch(err) {
                 console.error('PDF error:', err);
                 toast('❌ Error: ' + err.message);
@@ -1362,13 +1401,51 @@ function buildPdfFromMerge() {
                 const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
                 const pw = doc.internal.pageSize.getWidth();
                 const ph = doc.internal.pageSize.getHeight();
-                items.forEach((it, i) => {
-                    if (i > 0) doc.addPage('a4','portrait');
-                    doc.addImage(it.dataset.src, 'JPEG', 0, 0, pw, ph, undefined, 'FAST');
+                
+                (async () => {
+                    for (let i = 0; i < items.length; i++) {
+                        if (i > 0) doc.addPage('a4','portrait');
+                        const src = items[i].dataset.src;
+                        
+                        const safeImg = await new Promise((resolve) => {
+                            const img = new Image();
+                            img.onload = () => {
+                                const canvas = document.createElement('canvas');
+                                let cw = img.naturalWidth, ch = img.naturalHeight;
+                                // Save memory limit
+                                const maxDim = 2000;
+                                if (cw > maxDim || ch > maxDim) {
+                                    const r = Math.min(maxDim / cw, maxDim / ch);
+                                    cw = Math.floor(cw * r); ch = Math.floor(ch * r);
+                                }
+                                canvas.width = cw; canvas.height = ch;
+                                const ctx = canvas.getContext('2d');
+                                ctx.fillStyle = '#ffffff'; 
+                                ctx.fillRect(0, 0, cw, ch);
+                                ctx.drawImage(img, 0, 0, cw, ch);
+                                resolve({ data: canvas.toDataURL('image/jpeg', 0.85), w: img.naturalWidth, h: img.naturalHeight });
+                            };
+                            img.onerror = () => resolve(null);
+                            img.src = src;
+                        });
+                        
+                        if (!safeImg) continue;
+                        
+                        const ratio = Math.min(pw / safeImg.w, ph / safeImg.h);
+                        const w = safeImg.w * ratio;
+                        const h = safeImg.h * ratio;
+                        const x = (pw - w) / 2;
+                        const y = (ph - h) / 2;
+                        
+                        doc.addImage(safeImg.data, 'JPEG', x, y, w, h, undefined, 'FAST');
+                    }
+                    const blob = doc.output('blob');
+                    downloadBlob(blob, 'PDFTiming_Merged.pdf');
+                    toast('✅ Merged PDF download ho gayi!');
+                })().catch(e => {
+                    console.error('Merge error:', e);
+                    toast('❌ Error: ' + e.message);
                 });
-                const blob = doc.output('blob');
-                downloadBlob(blob, 'PDFTiming_Merged.pdf');
-                toast('✅ Merged PDF download ho gayi!');
             } catch(e) {
                 console.error('Merge error:', e);
                 toast('❌ Error: ' + e.message);
