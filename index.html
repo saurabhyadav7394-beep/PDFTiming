@@ -21,6 +21,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <script src="https://unpkg.com/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+    
+    <!-- Advanced PDF & OCR Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    
+    <!-- Img.ly AI Background Removal -->
+    <script src="https://unpkg.com/@imgly/background-removal@1.4.3/dist/browser/imgly-background-removal.js"></script>
+    
+    <script>
+        if (window.pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+    </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,800;1,400&display=swap" rel="stylesheet">
@@ -116,7 +130,7 @@
         <div class="flex gap-1.5 pb-0.5 whitespace-nowrap" id="navTabs">
             <button onclick="showSection('home')" id="nb-home" class="nav-btn nav-btn-active text-xs font-bold px-3 py-1.5 rounded-lg border border-transparent transition-all">🏠 Home</button>
             <button onclick="showSection('img2pdf')" id="nb-img2pdf" class="nav-btn text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 bg-white hover:border-blue-400 transition-all">🖼️ Img→PDF</button>
-            <button onclick="showSection('text2pdf')" id="nb-text2pdf" class="nav-btn text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 bg-white hover:border-blue-400 transition-all">📝 Text→PDF</button>
+            <button onclick="showSection('writer')" id="nb-writer" class="nav-btn text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 bg-white hover:border-blue-400 transition-all">📝 Text→PDF</button>
             <button onclick="showSection('img2png')" id="nb-img2png" class="nav-btn text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 bg-white hover:border-blue-400 transition-all">🔄 →PNG</button>
             <button onclick="showSection('img2jpg')" id="nb-img2jpg" class="nav-btn text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 bg-white hover:border-blue-400 transition-all">📸 →JPG</button>
             <button onclick="showSection('resizer')" id="nb-resizer" class="nav-btn text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 bg-white hover:border-blue-400 transition-all">📐 Resize</button>
@@ -126,7 +140,11 @@
             <button onclick="showSection('crop')" id="nb-crop" class="nav-btn text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 bg-white hover:border-blue-400 transition-all">✂️ Crop</button>
             <button onclick="showSection('mergepdf')" id="nb-mergepdf" class="nav-btn text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 bg-white hover:border-blue-400 transition-all">📎 Merge</button>
             <button onclick="showSection('splitpdf')" id="nb-splitpdf" class="nav-btn text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 bg-white hover:border-blue-400 transition-all">✂️ Split</button>
-            <button onclick="showSection('writer')" id="nb-writer" class="nav-btn text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 bg-white hover:border-blue-400 transition-all">✍️ Writer</button>
+            <button onclick="showSection('compresspdf')" id="nb-compresspdf" class="nav-btn text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 bg-white hover:border-blue-400 transition-all">🗜️ Compress PDF</button>
+            <button onclick="showSection('repairpdf')" id="nb-repairpdf" class="nav-btn text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 bg-white hover:border-blue-400 transition-all">🛠️ Repair PDF</button>
+            <button onclick="showSection('ocrpdf')" id="nb-ocrpdf" class="nav-btn text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 bg-white hover:border-blue-400 transition-all">👁️ OCR PDF</button>
+            <button onclick="showSection('editpdf')" id="nb-editpdf" class="nav-btn text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 bg-white hover:border-blue-400 transition-all">✏️ Edit PDF</button>
+            <button onclick="showSection('freepng')" id="nb-freepng" class="nav-btn text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 bg-white hover:border-blue-400 transition-all">🪄 Transparent PNG</button>
         </div>
     </div>
 </nav>
@@ -141,7 +159,7 @@
             <p class="text-blue-100 text-sm sm:text-base mb-5 font-medium">100% Free • No Login • Works in Browser • No Watermark</p>
             <div class="flex flex-col sm:flex-row gap-3 justify-center">
                 <button onclick="showSection('img2pdf')" class="bg-white text-blue-700 font-bold px-6 py-3 rounded-xl hover:shadow-lg transition w-full sm:w-auto">Start Converting →</button>
-                <button onclick="showSection('text2pdf')" class="bg-white/20 text-white font-bold px-6 py-3 rounded-xl hover:bg-white/30 transition border border-white/30 w-full sm:w-auto">Text to PDF</button>
+                <button onclick="showSection('writer')" class="bg-white/20 text-white font-bold px-6 py-3 rounded-xl hover:bg-white/30 transition border border-white/30 w-full sm:w-auto">Text to PDF</button>
             </div>
         </div>
     </div>
@@ -168,7 +186,7 @@
                 <div class="tool-icon" style="background:#dbeafe"><i data-lucide="file-image" style="color:#2563eb;width:20px;height:20px"></i></div>
                 <span>Image to PDF</span>
             </div>
-            <div class="tool-card" onclick="showSection('text2pdf')" role="button" tabindex="0">
+            <div class="tool-card" onclick="showSection('writer')" role="button" tabindex="0">
                 <div class="tool-icon" style="background:#f3e8ff"><i data-lucide="type" style="color:#7c3aed;width:20px;height:20px"></i></div>
                 <span>Text to PDF</span>
             </div>
@@ -208,9 +226,25 @@
                 <div class="tool-icon" style="background:#fce7f3"><i data-lucide="scissors" style="color:#e11d48;width:20px;height:20px"></i></div>
                 <span>Split / Extract</span>
             </div>
-            <div class="tool-card" onclick="showSection('writer')" role="button" tabindex="0">
-                <div class="tool-icon" style="background:#fce7f3"><i data-lucide="pen-tool" style="color:#db2777;width:20px;height:20px"></i></div>
-                <span>Writer Pro</span>
+            <div class="tool-card" onclick="showSection('compresspdf')" role="button" tabindex="0">
+                <div class="tool-icon" style="background:#ffedd5"><i data-lucide="minimize" style="color:#ea580c;width:20px;height:20px"></i></div>
+                <span>Compress PDF</span>
+            </div>
+            <div class="tool-card" onclick="showSection('repairpdf')" role="button" tabindex="0">
+                <div class="tool-icon" style="background:#e0e7ff"><i data-lucide="wrench" style="color:#4f46e5;width:20px;height:20px"></i></div>
+                <span>Repair PDF</span>
+            </div>
+            <div class="tool-card" onclick="showSection('ocrpdf')" role="button" tabindex="0">
+                <div class="tool-icon" style="background:#ccfbf1"><i data-lucide="scan-text" style="color:#0d9488;width:20px;height:20px"></i></div>
+                <span>OCR (Scan Text)</span>
+            </div>
+            <div class="tool-card" onclick="showSection('editpdf')" role="button" tabindex="0">
+                <div class="tool-icon" style="background:#e0e7ff"><i data-lucide="edit-3" style="color:#4f46e5;width:20px;height:20px"></i></div>
+                <span>Edit PDF</span>
+            </div>
+            <div class="tool-card" onclick="showSection('freepng')" role="button" tabindex="0">
+                <div class="tool-icon" style="background:#dcfce7"><i data-lucide="wand-2" style="color:#16a34a;width:20px;height:20px"></i></div>
+                <span>Transparent PNG</span>
             </div>
         </div>
     </div>
@@ -262,76 +296,6 @@
         </div>
         <button onclick="buildPdf()" class="grad w-full text-white py-3.5 rounded-xl font-extrabold text-base shadow-lg hover:opacity-90 active:opacity-80 transition flex items-center justify-center gap-2">
             <i data-lucide="download" style="width:18px;height:18px"></i> Generate &amp; Download PDF
-        </button>
-    </div>
-</section>
-
-<section id="text2pdf" class="tab-content sec-card">
-    <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mb-1">📝 Text to PDF</h2>
-    <p class="text-slate-500 text-sm mb-5">Kisi bhi language mein likhein — 20+ scripts support.</p>
-    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
-        <div>
-            <label class="text-xs font-bold text-slate-500 block mb-1">Language / Script</label>
-            <select id="txtLang" class="w-full p-2.5 rounded-xl border font-bold outline-none text-sm bg-white">
-                <option value="en">English</option>
-                <option value="hi">Hindi (हिंदी)</option>
-                <option value="mr">Marathi (मराठी)</option>
-                <option value="bn">Bengali (বাংলা)</option>
-                <option value="gu">Gujarati (ગુજરાતી)</option>
-                <option value="ta">Tamil (தமிழ்)</option>
-                <option value="te">Telugu (తెలుగు)</option>
-                <option value="kn">Kannada (ಕನ್ನಡ)</option>
-                <option value="ml">Malayalam (മലയാളം)</option>
-                <option value="pa">Punjabi (ਪੰਜਾਬੀ)</option>
-                <option value="ur">Urdu (اردو)</option>
-                <option value="ar">Arabic (عربي)</option>
-                <option value="zh">Chinese (中文)</option>
-                <option value="ja">Japanese (日本語)</option>
-                <option value="ko">Korean (한국어)</option>
-                <option value="fr">French</option>
-                <option value="de">German</option>
-                <option value="es">Spanish</option>
-                <option value="ru">Russian</option>
-                <option value="pt">Portuguese</option>
-            </select>
-        </div>
-        <div>
-            <label class="text-xs font-bold text-slate-500 block mb-1">Font Size</label>
-            <select id="txtFontSize" class="w-full p-2.5 rounded-xl border font-bold outline-none text-sm bg-white">
-                <option value="10">10pt</option><option value="12" selected>12pt</option><option value="14">14pt</option><option value="16">16pt</option><option value="18">18pt</option><option value="24">24pt</option>
-            </select>
-        </div>
-        <div>
-            <label class="text-xs font-bold text-slate-500 block mb-1">Page Size</label>
-            <select id="txtPage" class="w-full p-2.5 rounded-xl border font-bold outline-none text-sm bg-white">
-                <option value="a4">A4</option><option value="letter">Letter</option><option value="a3">A3</option>
-            </select>
-        </div>
-        <div>
-            <label class="text-xs font-bold text-slate-500 block mb-1">Title (Optional)</label>
-            <input type="text" id="txtTitle" placeholder="Document title..." class="w-full p-2.5 rounded-xl border font-bold outline-none text-sm bg-white focus:border-blue-400">
-        </div>
-        <div>
-            <label class="text-xs font-bold text-slate-500 block mb-1">Text Color</label>
-            <input type="color" id="txtColor" value="#000000" class="w-full h-10 rounded-xl border cursor-pointer">
-        </div>
-        <div>
-            <label class="text-xs font-bold text-slate-500 block mb-1">Background</label>
-            <input type="color" id="txtBgColor" value="#ffffff" class="w-full h-10 rounded-xl border cursor-pointer">
-        </div>
-    </div>
-    <textarea id="textInput" rows="8" placeholder="Yahan apna text likhein... (Hindi, Arabic, Chinese, Japanese — sab support hain)"
-        class="w-full border border-slate-200 rounded-xl p-4 font-sans text-base outline-none resize-y focus:border-blue-400 transition"
-        style="font-family:inherit;line-height:1.7"></textarea>
-    <div class="mt-3 bg-blue-50 border border-blue-100 rounded-xl p-3 text-xs text-blue-700 font-semibold">
-        💡 Hindi ke liye apna keyboard ya Gboard use karein, ya copy-paste karein. Arabic/Urdu: RTL auto apply hoga.
-    </div>
-    <div class="flex flex-col sm:flex-row gap-3 mt-4">
-        <button onclick="textToPdf()" class="grad flex-1 text-white py-3.5 rounded-xl font-extrabold shadow-lg hover:opacity-90 active:opacity-80 transition flex items-center justify-center gap-2">
-            <i data-lucide="download" style="width:16px;height:16px"></i> Download PDF
-        </button>
-        <button onclick="textToTxt()" class="flex-1 bg-slate-800 text-white py-3.5 rounded-xl font-extrabold shadow-lg hover:bg-slate-700 transition flex items-center justify-center gap-2">
-            <i data-lucide="file-text" style="width:16px;height:16px"></i> Save as TXT
         </button>
     </div>
 </section>
@@ -633,7 +597,7 @@
 <section id="writer" class="tab-content sec-card">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-2 pb-4 border-b">
         <div>
-            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800">✍️ Writer Pro</h2>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800">📝 Text to PDF</h2>
             <p class="text-xs text-slate-400 font-bold mt-0.5">Rich text editor — PDF, JPG, TXT mein save karein</p>
         </div>
     </div>
@@ -664,6 +628,146 @@
         <button onclick="downloadPdf()" class="grad text-white py-3.5 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2 hover:opacity-90 transition">📄 Save as PDF</button>
         <button onclick="downloadImg()" class="bg-slate-800 text-white py-3.5 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2 hover:bg-slate-700 transition">🖼️ Save as JPG</button>
         <button onclick="downloadTxt()" class="bg-slate-600 text-white py-3.5 rounded-xl font-bold shadow-lg flex items-center justify-center gap-2 hover:bg-slate-500 transition">📝 Save as TXT</button>
+    </div>
+</section>
+
+<section id="compresspdf" class="tab-content sec-card">
+    <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mb-1">🗜️ Compress PDF</h2>
+    <p class="text-slate-500 text-sm mb-5">PDF ka size drastically chhota karein. Quality ya size apni zaroorat ke hisaab se chunein.</p>
+    <div class="dropzone" id="compPdfDrop" onclick="document.getElementById('compressPdfInput').click()">
+        <input type="file" id="compressPdfInput" accept="application/pdf" class="hidden" onchange="setupCompressPdf(this.files[0])">
+        <i data-lucide="minimize" class="mx-auto mb-3" style="width:44px;height:44px;color:#ea580c;display:block"></i>
+        <p class="font-bold text-slate-600">PDF Select Karein</p>
+    </div>
+    <div id="compressPdfAction" class="hidden mt-5">
+        <div class="bg-slate-50 border p-4 rounded-xl mb-4">
+            <p class="text-sm font-bold text-slate-600 mb-2">Selected File Size: <span id="compOrigSize" class="text-blue-600"></span></p>
+            <label class="text-xs font-bold text-slate-500 block mb-2 mt-4">Required PDF Quality: <span id="pdfCompVal" class="text-blue-600">60%</span></label>
+            <input type="range" id="pdfCompQuality" min="10" max="100" value="60" oninput="document.getElementById('pdfCompVal').innerText=this.value+'%'" class="w-full accent-blue-600">
+            <p class="text-[10px] text-slate-400 mt-1">Quality kam karne se file ka size aur zyada chhota (compress) ho jayega.</p>
+        </div>
+        <button onclick="executeCompressPdf()" class="grad w-full text-white py-3.5 rounded-xl font-extrabold shadow-lg hover:opacity-90 active:opacity-80 transition">🗜️ Compress & Download PDF</button>
+    </div>
+</section>
+
+<section id="repairpdf" class="tab-content sec-card">
+    <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mb-1">🛠️ Repair PDF</h2>
+    <p class="text-slate-500 text-sm mb-5">Corrupt ya theek se open na hone wali PDF file ko fix karein aur download karein.</p>
+    <div class="dropzone" id="repPdfDrop" onclick="document.getElementById('repairPdfInput').click()">
+        <input type="file" id="repairPdfInput" accept="application/pdf" class="hidden" onchange="setupRepairPdf(this.files[0])">
+        <i data-lucide="wrench" class="mx-auto mb-3" style="width:44px;height:44px;color:#4f46e5;display:block"></i>
+        <p class="font-bold text-slate-600">Corrupted PDF Select Karein</p>
+    </div>
+    <div id="repairPdfAction" class="hidden mt-5">
+        <p class="text-sm font-bold text-slate-600 bg-slate-50 border p-3 rounded-xl mb-3">File: <span id="repFileName" class="text-blue-600"></span></p>
+        <button onclick="executeRepairPdf()" class="grad w-full text-white py-3.5 rounded-xl font-extrabold shadow-lg hover:opacity-90 active:opacity-80 transition">🛠️ Repair & Download PDF</button>
+    </div>
+</section>
+
+<section id="ocrpdf" class="tab-content sec-card">
+    <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mb-1">👁️ OCR PDF & Image</h2>
+    <p class="text-slate-500 text-sm mb-5">Image ya PDF se text (words) scan karein aur TXT / PDF mein save karein.</p>
+    <div class="dropzone" onclick="document.getElementById('ocrInput').click()">
+        <input type="file" id="ocrInput" accept="image/*,application/pdf" class="hidden" onchange="doOcr(this.files[0])">
+        <i data-lucide="scan-text" class="mx-auto mb-3" style="width:44px;height:44px;color:#0d9488;display:block"></i>
+        <p class="font-bold text-slate-600">PDF ya Image Select Karein</p>
+    </div>
+    <div id="ocrResultContainer" class="hidden mt-4">
+        <textarea id="ocrOutput" class="w-full h-48 p-4 border rounded-xl mb-3" placeholder="Scanning..." spellcheck="false"></textarea>
+        <div class="flex flex-col sm:flex-row gap-3">
+            <button onclick="downloadOcrTxt()" class="flex-1 bg-slate-800 text-white py-3.5 rounded-xl font-bold shadow-md hover:bg-slate-700 transition">📝 Download as TXT</button>
+            <button onclick="downloadOcrPdf()" class="flex-1 grad text-white py-3.5 rounded-xl font-bold shadow-md hover:opacity-90 transition">📄 Download as PDF</button>
+        </div>
+    </div>
+</section>
+
+<section id="editpdf" class="tab-content sec-card">
+    <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mb-1">✏️ Edit PDF</h2>
+    <p class="text-slate-500 text-sm mb-5">PDF par draw karein, text likhein aur download karein.</p>
+    <div class="dropzone" id="editPdfDrop" onclick="document.getElementById('editPdfInput').click()">
+        <input type="file" id="editPdfInput" accept="application/pdf" class="hidden" onchange="loadPdfForEdit(this.files[0])">
+        <i data-lucide="edit-3" class="mx-auto mb-3" style="width:44px;height:44px;color:#4f46e5;display:block"></i>
+        <p class="font-bold text-slate-600">PDF Select Karein</p>
+    </div>
+    <div id="editPdfAction" class="hidden mt-5 relative">
+        <div class="flex gap-2 mb-3 bg-slate-50 p-2 rounded-xl border items-center overflow-x-auto">
+            <button onclick="setEditMode('draw')" id="btnDraw" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm">🖌️ Draw</button>
+            <button onclick="setEditMode('text')" id="btnText" class="bg-white text-slate-600 border px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-slate-100">📝 Add Text</button>
+            <button onclick="undoEdit()" class="bg-slate-100 text-slate-700 border px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-slate-200">↩ Undo</button>
+            <button onclick="clearEditCanvas()" class="bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg text-xs font-bold ml-auto hover:bg-red-100">🗑️ Clear Page</button>
+            <input type="color" id="editColor" value="#ef4444" class="w-8 h-8 rounded border cursor-pointer ml-2">
+        </div>
+        <div class="border-2 border-slate-200 rounded-xl overflow-hidden relative" style="background:#f8fafc">
+             <canvas id="editPdfCanvas" class="w-full cursor-crosshair max-w-full block" style="touch-action:none"></canvas>
+        </div>
+        <p class="text-sm font-bold text-slate-500 mt-3 text-center" id="editPdfPageInfo">Page 1</p>
+        <div class="grid grid-cols-2 gap-3 mt-2">
+             <button onclick="prevEditPage()" class="bg-slate-100 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-200 transition">⬅ Prev</button>
+             <button onclick="nextEditPage()" class="bg-slate-100 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-200 transition">Next ➡</button>
+        </div>
+        <button onclick="saveEditedPdf()" class="grad w-full text-white py-3.5 mt-5 rounded-xl font-extrabold shadow-lg hover:opacity-90 transition flex items-center justify-center gap-2">⬇ Save &amp; Download PDF</button>
+    </div>
+</section>
+
+<section id="freepng" class="tab-content sec-card">
+    <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 mb-1">🪄 Free Transparent PNG Maker</h2>
+    <p class="text-slate-500 text-sm mb-5">Background color par click karein aur transparent banayein (Magic Eraser).</p>
+    <div class="dropzone" id="freePngDrop" onclick="document.getElementById('freePngInput').click()">
+        <input type="file" id="freePngInput" accept="image/*" class="hidden" onchange="loadFreePngImage(this.files[0])">
+        <i data-lucide="wand-2" class="mx-auto mb-3" style="width:44px;height:44px;color:#16a34a;display:block"></i>
+        <p class="font-bold text-slate-600">Image Select Karein (Upload Image)</p>
+    </div>
+    
+    <div id="freePngAction" class="hidden mt-5">
+        <div class="flex flex-wrap gap-2 mb-4 bg-slate-100 p-1.5 rounded-xl">
+            <button id="btnBgModeAuto" onclick="setBgMode('auto')" class="flex-1 bg-white text-blue-600 shadow-sm font-bold text-xs py-2 rounded-lg transition">🤖 Auto AI</button>
+            <button id="btnBgModeColor" onclick="setBgMode('color')" class="flex-1 text-slate-500 font-bold text-xs py-2 rounded-lg hover:bg-slate-200 transition">🪄 Color Wand</button>
+            <button id="btnBgModeBrush" onclick="setBgMode('brush')" class="flex-1 text-slate-500 font-bold text-xs py-2 rounded-lg hover:bg-slate-200 transition">🖌️ Manual Brush</button>
+        </div>
+
+        <div id="pngPanelAuto" class="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-4 block">
+            <h3 class="text-sm font-extrabold text-blue-800 mb-1">🤖 100% Auto Object Detection</h3>
+            <p class="text-xs text-blue-600 mb-3">Professional AI background removal (First time may take 10-15s to load ML models securely offline).</p>
+            <button id="btnRunAiBg" onclick="runAiBackgroundRemove()" class="bg-blue-600 text-white w-full rounded-lg font-bold py-2.5 text-sm hover:bg-blue-700 transition shadow-sm mb-2">✨ Remove Background with AI</button>
+            <p id="aiBgProgress" class="text-xs text-slate-500 text-center font-bold hidden">⏳ Initializing ML logic...</p>
+        </div>
+
+        <div id="pngPanelColor" class="bg-slate-50 p-4 rounded-xl border mb-4 hidden">
+            <h3 class="text-sm font-extrabold text-slate-800 mb-1">🪄 Magic Color Wand</h3>
+            <p class="text-xs text-slate-500 mb-3">Tap on any background color to erase it from image instantly.</p>
+            <p class="text-xs font-bold text-slate-500 mb-2">Strictness (Tolerance): <span id="pngTolVal" class="text-blue-600">45</span></p>
+            <input type="range" id="pngTol" min="0" max="200" value="45" class="w-full accent-blue-600 mb-1" oninput="document.getElementById('pngTolVal').innerText=this.value; applyTransparency()">
+        </div>
+
+        <div id="pngPanelBrush" class="bg-slate-50 p-4 rounded-xl border mb-4 hidden">
+            <h3 class="text-sm font-extrabold text-slate-800 mb-1">🖌️ Manual Eraser Brush</h3>
+            <p class="text-xs text-slate-500 mb-3">Drag over the image to gently erase precise parts.</p>
+            <p class="text-xs font-bold text-slate-500 mb-2">Brush Size: <span id="brushSizeVal" class="text-blue-600">20</span>px</p>
+            <input type="range" id="brushSize" min="1" max="100" value="20" class="w-full accent-blue-600 mb-1" oninput="document.getElementById('brushSizeVal').innerText=this.value">
+        </div>
+        
+        <div class="bg-slate-50 p-4 rounded-xl border mb-4">
+            <div class="flex items-center justify-between gap-3">
+              <div class="w-1/2">
+                <p class="text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wide">Download Quality / Size</p>
+                <select id="freePngSize" class="w-full p-2 rounded-lg border text-sm font-bold bg-white">
+                    <option value="1">100% (High Quality)</option>
+                    <option value="0.75">75% Size (Medium)</option>
+                    <option value="0.5">50% Size (Low)</option>
+                    <option value="0.25">25% (Smallest)</option>
+                </select>
+              </div>
+              <div class="w-1/2 flex flex-col gap-2">
+                 <button onclick="undoPngAction()" class="bg-slate-200 text-slate-700 w-full rounded-lg font-bold py-1.5 text-[11px] hover:bg-slate-300">↩ Undo Action</button>
+                 <button onclick="resetFreePng()" class="bg-red-50 text-red-600 w-full rounded-lg font-bold py-1.5 text-[11px] hover:bg-red-100">↺ Reset Image entirely</button>
+              </div>
+            </div>
+        </div>
+
+        <div class="border-2 border-slate-200 rounded-xl overflow-hidden relative flex justify-center" style="background:repeating-linear-gradient(45deg,#ccc 0,#ccc 10px,white 10px,white 20px)">
+             <canvas id="freePngCanvas" class="max-w-full block" style="touch-action:none; cursor: crosshair;"></canvas>
+        </div>
+        <button onclick="downloadFreePng()" class="grad w-full text-white py-3.5 mt-5 rounded-xl font-extrabold shadow-lg hover:opacity-90 transition flex items-center justify-center gap-2">⬇ Download Transparent PNG</button>
     </div>
 </section>
 
@@ -1563,6 +1667,547 @@ document.addEventListener('DOMContentLoaded', () => {
 
 if (document.readyState !== 'loading') {
     initLucide();
+}
+
+// ====== ADVANCED PDF FUNCTIONS ====== //
+let currentCompressFile = null;
+let currentRepairFile = null;
+
+function formatBytes(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024, sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function setupCompressPdf(file) {
+    if (!file) return;
+    currentCompressFile = file;
+    document.getElementById('compOrigSize').innerText = formatBytes(file.size);
+    document.getElementById('compressPdfAction').classList.remove('hidden');
+    document.getElementById('compPdfDrop').style.display = 'none';
+}
+
+async function executeCompressPdf() {
+    if (!currentCompressFile) return;
+    toast('⏳ PDF Compress ho rahi hai... Isme thoda time lag sakta hai.');
+    try {
+        if (!window.pdfjsLib) throw new Error("PDF.js library load nahi hui hai. Thoda wait karein.");
+        const arrayBuffer = await currentCompressFile.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const { jsPDF } = window.jspdf;
+        const newPdf = new jsPDF('p', 'mm', 'a4');
+        
+        const qualVal = parseInt(document.getElementById('pdfCompQuality').value) || 60;
+        const jpegQual = qualVal / 100;
+        const renderScale = 0.8 + (jpegQual * 0.7); // Adjust internal size based on quality
+        
+        for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const viewport = page.getViewport({ scale: renderScale });
+            
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = viewport.width; canvas.height = viewport.height;
+            
+            ctx.fillStyle = '#ffffff'; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            await page.render({ canvasContext: ctx, viewport }).promise;
+            
+            const imgData = canvas.toDataURL('image/jpeg', jpegQual);
+            if (i > 1) newPdf.addPage();
+            
+            const pw = newPdf.internal.pageSize.getWidth();
+            const ph = newPdf.internal.pageSize.getHeight();
+            newPdf.addImage(imgData, 'JPEG', 0, 0, pw, ph, undefined, 'FAST');
+        }
+        
+        const blob = newPdf.output('blob');
+        downloadBlob(blob, currentCompressFile.name.replace('.pdf', '_compressed.pdf'));
+        toast('✅ PDF Download ho gayi!');
+        
+        // Reset UI
+        document.getElementById('compressPdfAction').classList.add('hidden');
+        document.getElementById('compPdfDrop').style.display = 'block';
+        currentCompressFile = null;
+    } catch (err) {
+        toast('❌ Error: ' + err.message);
+    }
+}
+
+function setupRepairPdf(file) {
+    if (!file) return;
+    currentRepairFile = file;
+    document.getElementById('repFileName').innerText = file.name;
+    document.getElementById('repairPdfAction').classList.remove('hidden');
+    document.getElementById('repPdfDrop').style.display = 'none';
+}
+
+async function executeRepairPdf() {
+    if (!currentRepairFile) return;
+    toast('⏳ PDF Repair ho rahi hai...');
+    try {
+        const arrayBuffer = await currentRepairFile.arrayBuffer();
+        const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
+        const pdfBytes = await pdfDoc.save();
+        const blob = new Blob([pdfBytes], { type: "application/pdf" });
+        downloadBlob(blob, currentRepairFile.name.replace('.pdf', '_repaired.pdf'));
+        toast('✅ Repair & Download Done!');
+        
+        document.getElementById('repairPdfAction').classList.add('hidden');
+        document.getElementById('repPdfDrop').style.display = 'block';
+        currentRepairFile = null;
+    } catch (err) {
+        toast('❌ Repair Error: ' + err.message);
+    }
+}
+
+async function doOcr(file) {
+    if (!file) return;
+    toast('⏳ AI Scan shuru ho raha hai...');
+    document.getElementById('ocrResultContainer').classList.remove('hidden');
+    document.getElementById('ocrOutput').value = "Scanning... kripya pratiksha karein...";
+    
+    try {
+        let imageUrl = URL.createObjectURL(file);
+        if (file.type === "application/pdf") {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            const page = await pdf.getPage(1);
+            const viewport = page.getViewport({ scale: 2.0 });
+            const canvas = document.createElement('canvas');
+            canvas.width = viewport.width; canvas.height = viewport.height;
+            await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+            imageUrl = canvas.toDataURL('image/png');
+        }
+
+        const worker = await window.Tesseract.createWorker('eng');
+        const ret = await worker.recognize(imageUrl);
+        document.getElementById('ocrOutput').value = ret.data.text;
+        await worker.terminate();
+        toast('✅ OCR Scan Complete!');
+    } catch (err) {
+        document.getElementById('ocrOutput').value = "Failed: " + err.message;
+        toast('❌ Error in OCR: ' + err.message);
+    }
+}
+
+function downloadOcrTxt() {
+    const text = document.getElementById('ocrOutput').value;
+    if(!text || text === "Scanning... kripya pratiksha karein...") return toast('❌ Koi text scan nahi hua.');
+    const blob = new Blob([text], {type: 'text/plain;charset=utf-8'});
+    downloadBlob(blob, 'Scanned_Text.txt');
+    toast('✅ TXT Downloaded!');
+}
+
+function downloadOcrPdf() {
+    const text = document.getElementById('ocrOutput').value;
+    if(!text || text === "Scanning... kripya pratiksha karein...") return toast('❌ Koi text scan nahi hua.');
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFont("helvetica");
+        doc.setFontSize(12);
+        
+        const safeText = doc.splitTextToSize(text, 180);
+        doc.text(safeText, 15, 20);
+        
+        const blob = doc.output('blob');
+        downloadBlob(blob, 'Scanned_Document.pdf');
+        toast('✅ PDF Downloaded!');
+    } catch (e) {
+        toast('❌ Error saving PDF: ' + e.message);
+    }
+}
+
+// ====== EDIT PDF ====== //
+let edPdfDoc = null;
+let edPdfPagesData = []; 
+let edCurrPage = 1;
+let edTotalPages = 1;
+let edMode = 'draw';
+let edIsDrawing = false;
+let edCtx, edCanvas;
+let edHistory = [];
+
+async function loadPdfForEdit(file) {
+    if (!file) return;
+    toast('⏳ Loading PDF...');
+    document.getElementById('editPdfAction').classList.remove('hidden');
+    document.getElementById('editPdfDrop').style.display = 'none';
+    
+    try {
+        const arrayBuffer = await file.arrayBuffer();
+        edPdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        edTotalPages = edPdfDoc.numPages;
+        edCurrPage = 1;
+        edPdfPagesData = new Array(edTotalPages).fill(null);
+        edHistory = new Array(edTotalPages).fill(null).map(() => []);
+        
+        edCanvas = document.getElementById('editPdfCanvas');
+        edCtx = edCanvas.getContext('2d');
+        
+        edCanvas.onmousedown = startEdDraw;
+        edCanvas.ontouchstart = startEdDraw;
+        edCanvas.onmousemove = doEdDraw;
+        edCanvas.ontouchmove = doEdDraw;
+        edCanvas.onmouseup = stopEdDraw;
+        edCanvas.ontouchend = stopEdDraw;
+        edCanvas.onmouseout = stopEdDraw;
+        
+        await renderEdPage(1);
+    } catch(e) {
+        toast('❌ Errror loading PDF: ' + e.message);
+    }
+}
+
+function saveEdState() {
+    if(edHistory[edCurrPage-1].length > 20) edHistory[edCurrPage-1].shift();
+    edHistory[edCurrPage-1].push(edCanvas.toDataURL());
+}
+
+function undoEdit() {
+    if (edHistory[edCurrPage-1].length > 0) {
+        let lastState = edHistory[edCurrPage-1].pop();
+        let img = new Image();
+        img.onload = () => { edCtx.clearRect(0,0,edCanvas.width,edCanvas.height); edCtx.drawImage(img,0,0); }
+        img.src = lastState;
+    } else {
+        renderEdPage(edCurrPage);
+    }
+}
+
+function clearEditCanvas() {
+    if(!edHistory[edCurrPage-1].length) saveEdState();
+    renderEdPage(edCurrPage);
+}
+
+function getEdPos(e) {
+    const rect = edCanvas.getBoundingClientRect();
+    let clientX = e.clientX; let clientY = e.clientY;
+    if (e.touches && e.touches.length > 0) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
+    return {
+        x: (clientX - rect.left) * (edCanvas.width / rect.width),
+        y: (clientY - rect.top)  * (edCanvas.height / rect.height)
+    };
+}
+
+function startEdDraw(e) {
+    e.preventDefault();
+    if (edMode !== 'draw') {
+        let txt = prompt("Enter text to add:");
+        if (txt) {
+            saveEdState();
+            let p = getEdPos(e);
+            edCtx.font = "bold 34px Arial";
+            edCtx.fillStyle = document.getElementById('editColor').value;
+            edCtx.fillText(txt, p.x, p.y + 10);
+        }
+        return;
+    }
+    edIsDrawing = true;
+    saveEdState();
+    let p = getEdPos(e);
+    edCtx.beginPath(); edCtx.moveTo(p.x, p.y);
+    edCtx.strokeStyle = document.getElementById('editColor').value;
+    edCtx.lineWidth = 4;
+    edCtx.lineCap = 'round';
+}
+function doEdDraw(e) {
+    if (!edIsDrawing || edMode !== 'draw') return;
+    e.preventDefault();
+    let p = getEdPos(e);
+    edCtx.lineTo(p.x, p.y); edCtx.stroke();
+}
+function stopEdDraw(e) { edIsDrawing = false; }
+
+function setEditMode(mode) {
+    edMode = mode;
+    document.getElementById('btnDraw').className = mode === 'draw' ? 'bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm' : 'bg-white text-slate-600 border px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-slate-100';
+    document.getElementById('btnText').className = mode === 'text' ? 'bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm' : 'bg-white text-slate-600 border px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-slate-100';
+}
+
+async function renderEdPage(num) {
+    document.getElementById('editPdfPageInfo').textContent = `Page ${num} of ${edTotalPages}`;
+    edCurrPage = num;
+    
+    const page = await edPdfDoc.getPage(num);
+    const viewport = page.getViewport({ scale: 2.0 }); 
+    edCanvas.width = viewport.width; edCanvas.height = viewport.height;
+    
+    if (edPdfPagesData[num-1]) {
+        let img = new Image();
+        img.onload = () => { edCtx.drawImage(img, 0, 0); }
+        img.src = edPdfPagesData[num-1];
+    } else {
+        await page.render({ canvasContext: edCtx, viewport }).promise;
+    }
+}
+
+async function prevEditPage() {
+    if(edCurrPage <= 1) return;
+    edPdfPagesData[edCurrPage-1] = edCanvas.toDataURL('image/jpeg', 0.9);
+    await renderEdPage(edCurrPage - 1);
+}
+async function nextEditPage() {
+    if(edCurrPage >= edTotalPages) return;
+    edPdfPagesData[edCurrPage-1] = edCanvas.toDataURL('image/jpeg', 0.9);
+    await renderEdPage(edCurrPage + 1);
+}
+
+async function saveEditedPdf() {
+    toast('⏳ Generating Final PDF...');
+    try {
+        edPdfPagesData[edCurrPage-1] = edCanvas.toDataURL('image/jpeg', 0.9);
+        
+        const { jsPDF } = window.jspdf;
+        const newPdf = new jsPDF('p', 'mm', 'a4');
+        
+        for (let i = 1; i <= edTotalPages; i++) {
+            if (i > 1) newPdf.addPage();
+            let dataUrl = edPdfPagesData[i-1];
+            if (!dataUrl) {
+                const page = await edPdfDoc.getPage(i);
+                const viewport = page.getViewport({ scale: 2.0 });
+                const tmpCanvas = document.createElement('canvas'); tmpCanvas.width = viewport.width; tmpCanvas.height = viewport.height;
+                await page.render({ canvasContext: tmpCanvas.getContext('2d'), viewport }).promise;
+                dataUrl = tmpCanvas.toDataURL('image/jpeg', 0.9);
+            }
+            const pw = newPdf.internal.pageSize.getWidth();
+            const ph = newPdf.internal.pageSize.getHeight();
+            newPdf.addImage(dataUrl, 'JPEG', 0, 0, pw, ph, undefined, 'FAST');
+        }
+        downloadBlob(newPdf.output('blob'), 'PDFTiming_Edited.pdf');
+        toast('✅ Download Complete!');
+    } catch(e) {
+        toast('❌ Error saving: ' + e.message);
+    }
+}
+
+// ====== FREE TRANSPARENT PNG MAKER ====== //
+let freePngOrigData = null;
+let freePngCanvas = null;
+let freePngCtx = null;
+let selectedBgColors = [];
+let currentBgMode = 'auto'; // auto, color, brush
+let isBrushing = false;
+let pngUndoStack = [];
+let loadedImglyBlob = null;
+let uploadedFileBlob = null;
+
+function setBgMode(mode) {
+    currentBgMode = mode;
+    ['Auto', 'Color', 'Brush'].forEach(m => {
+        const btn = document.getElementById('btnBgMode' + m);
+        const pnl = document.getElementById('pngPanel' + m);
+        if (mode === m.toLowerCase()) {
+            btn.className = "flex-1 bg-white text-blue-600 shadow-sm font-bold text-xs py-2 rounded-lg transition";
+            pnl.style.display = 'block';
+        } else {
+            btn.className = "flex-1 text-slate-500 font-bold text-xs py-2 rounded-lg hover:bg-slate-200 transition";
+            pnl.style.display = 'none';
+        }
+    });
+}
+
+function savePngState() {
+    if(!freePngCanvas) return;
+    pngUndoStack.push(freePngCtx.getImageData(0, 0, freePngCanvas.width, freePngCanvas.height));
+    if(pngUndoStack.length > 10) pngUndoStack.shift();
+}
+
+function undoPngAction() {
+    if(pngUndoStack.length > 0) {
+        freePngCtx.putImageData(pngUndoStack.pop(), 0, 0);
+        toast('↩ Action Undone');
+    } else {
+        toast('❌ Nothing to undo');
+    }
+}
+
+async function runAiBackgroundRemove() {
+    if(!uploadedFileBlob || !window.imglyRemoveBackground) {
+        return toast('❌ No image or AI model not loaded!');
+    }
+    const btn = document.getElementById('btnRunAiBg');
+    const prog = document.getElementById('aiBgProgress');
+    try {
+        btn.disabled = true;
+        btn.innerText = "⏳ Processing AI... Please wait";
+        prog.style.display = 'block';
+        
+        savePngState();
+        
+        // Use Img.ly AI exactly as per their standard api
+        const blob = await window.imglyRemoveBackground(uploadedFileBlob, {
+            progress: (key, current, total) => {
+                const percent = Math.round((current/total)*100);
+                prog.innerText = `⏳ Loading ML Models: ${key} (${percent}%)`;
+            }
+        });
+        
+        const url = URL.createObjectURL(blob);
+        const img = new Image();
+        img.onload = () => {
+            freePngCtx.clearRect(0,0, freePngCanvas.width, freePngCanvas.height);
+            freePngCtx.drawImage(img, 0, 0);
+            prog.style.display = 'none';
+            btn.innerText = "✨ Background Removed Successfully!";
+            toast('🤖 AI Background Removal complete!');
+        };
+        img.src = url;
+    } catch(err) {
+        prog.style.display = 'none';
+        btn.disabled = false;
+        btn.innerText = "✨ Try Auto AI Again";
+        toast('❌ AI Failed: ' + err.message);
+    }
+}
+
+function loadFreePngImage(file) {
+    if (!file) return;
+    uploadedFileBlob = file;
+    document.getElementById('freePngAction').classList.remove('hidden');
+    document.getElementById('freePngDrop').style.display = 'none';
+    
+    freePngCanvas = document.getElementById('freePngCanvas');
+    freePngCtx = freePngCanvas.getContext('2d', {willReadFrequently: true});
+    pngUndoStack = [];
+    
+    // Bind interaction events for manual brush/wand
+    freePngCanvas.onmousedown = handlePngDown;
+    freePngCanvas.onmousemove = handlePngMove;
+    freePngCanvas.onmouseup = () => isBrushing = false;
+    freePngCanvas.onmouseout = () => isBrushing = false;
+    
+    freePngCanvas.ontouchstart = handlePngDown;
+    freePngCanvas.ontouchmove = handlePngMove;
+    freePngCanvas.ontouchend = () => isBrushing = false;
+    
+    const r = new FileReader();
+    r.onload = ev => {
+        const img = new Image();
+        img.onload = () => {
+            freePngCanvas.width = img.naturalWidth;
+            freePngCanvas.height = img.naturalHeight;
+            freePngCtx.drawImage(img, 0, 0);
+            
+            freePngOrigData = freePngCtx.getImageData(0, 0, freePngCanvas.width, freePngCanvas.height);
+            selectedBgColors = [];
+            
+            document.getElementById('btnRunAiBg').disabled = false;
+            document.getElementById('btnRunAiBg').innerText = "✨ Remove Background with AI";
+            setBgMode('auto');
+        };
+        img.src = ev.target.result;
+    };
+    r.readAsDataURL(file);
+}
+
+function handlePngDown(e) {
+    if(currentBgMode === 'auto') return;
+    savePngState();
+    
+    if(currentBgMode === 'color') {
+        processColorWandClick(getMousePos(e));
+    } else if(currentBgMode === 'brush') {
+        isBrushing = true;
+        eraseBrush(getMousePos(e));
+    }
+}
+
+function handlePngMove(e) {
+    if(isBrushing && currentBgMode === 'brush') {
+        e.preventDefault();
+        eraseBrush(getMousePos(e));
+    }
+}
+
+function getMousePos(e) {
+    const rect = freePngCanvas.getBoundingClientRect();
+    const scaleX = freePngCanvas.width / rect.width;
+    const scaleY = freePngCanvas.height / rect.height;
+    let cx = e.clientX, cy = e.clientY;
+    if(e.touches && e.touches.length > 0) { cx = e.touches[0].clientX; cy = e.touches[0].clientY; }
+    return {
+        x: Math.floor((cx - rect.left) * scaleX),
+        y: Math.floor((cy - rect.top) * scaleY)
+    };
+}
+
+function eraseBrush(pos) {
+    const size = parseInt(document.getElementById('brushSize').value);
+    freePngCtx.save();
+    freePngCtx.globalCompositeOperation = 'destination-out';
+    freePngCtx.beginPath();
+    freePngCtx.arc(pos.x, pos.y, size, 0, Math.PI * 2, false);
+    freePngCtx.fill();
+    freePngCtx.restore();
+}
+
+function processColorWandClick(pos) {
+    const currentImgData = freePngCtx.getImageData(0, 0, freePngCanvas.width, freePngCanvas.height);
+    const idx = ((pos.y * freePngCanvas.width) + pos.x) * 4;
+    const rT = currentImgData.data[idx];
+    const gT = currentImgData.data[idx+1];
+    const bT = currentImgData.data[idx+2];
+    const aT = currentImgData.data[idx+3];
+    
+    if (aT === 0 || isNaN(rT)) return;
+    selectedBgColors.push({r: rT, g: gT, b: bT});
+    applyTransparency();
+}
+
+function applyTransparency() {
+    if (!freePngOrigData || selectedBgColors.length === 0) return;
+    const tol = parseInt(document.getElementById('pngTol').value);
+    
+    // We modify based on Original image data so we can adjust slider cleanly without resetting
+    const imgData = new ImageData(new Uint8ClampedArray(freePngOrigData.data), freePngOrigData.width, freePngOrigData.height);
+    const data = imgData.data;
+    
+    for (let c = 0; c < selectedBgColors.length; c++) {
+        const cT = selectedBgColors[c];
+        for (let i = 0; i < data.length; i += 4) {
+            if (data[i+3] === 0) continue;
+            const dr = data[i] - cT.r;
+            const dg = data[i+1] - cT.g;
+            const db = data[i+2] - cT.b;
+            if (Math.sqrt(dr*dr + dg*dg + db*db) <= tol) {
+                data[i+3] = 0; data[i] = 0; data[i+1] = 0; data[i+2] = 0; 
+            }
+        }
+    }
+    freePngCtx.putImageData(imgData, 0, 0);
+}
+
+function resetFreePng() {
+    if(!freePngOrigData || !freePngCanvas) return;
+    pngUndoStack = [];
+    selectedBgColors = [];
+    freePngCtx.putImageData(freePngOrigData, 0, 0);
+    document.getElementById('btnRunAiBg').disabled = false;
+    document.getElementById('btnRunAiBg').innerText = "✨ Remove Background with AI";
+    toast('↺ Image entirely reset');
+}
+
+function downloadFreePng() {
+    if(!freePngCanvas) return;
+    toast('⏳ Processing Transparent PNG...');
+    const scale = parseFloat(document.getElementById('freePngSize').value);
+    let outCanvas = freePngCanvas;
+    
+    if(scale < 1) {
+        outCanvas = document.createElement('canvas');
+        outCanvas.width = freePngCanvas.width * scale;
+        outCanvas.height = freePngCanvas.height * scale;
+        outCanvas.getContext('2d').drawImage(freePngCanvas, 0, 0, outCanvas.width, outCanvas.height);
+    }
+    
+    outCanvas.toBlob(blob => {
+        downloadBlob(blob, 'PDFTiming_Transparent.png');
+        toast('✅ PNG Download ho gayi!');
+    }, 'image/png');
 }
 </script>
 </body>
