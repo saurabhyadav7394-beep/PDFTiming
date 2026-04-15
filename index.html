@@ -6,16 +6,8 @@
     <meta name="theme-color" content="#2563eb">
     <title>PDFTiming | World's #1 Free PDF & Image Suite</title>
 
-    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: { sans: ['Plus Jakarta Sans', 'Arial', 'sans-serif'] }
-          }
-        }
-      }
-    </script>
+    <!-- Tailwind CSS Production Build -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.6/tailwind.min.css" rel="stylesheet">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -27,8 +19,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     
-    <!-- Img.ly AI Background Removal -->
-    <script src="https://unpkg.com/@imgly/background-removal@1.4.3/dist/browser/imgly-background-removal.js"></script>
+    <!-- TensorFlow.js Background Removal (Alternative to Img.ly) -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-segmentation@1.2.0"></script>
     
     <script>
         if (window.pdfjsLib) {
@@ -40,8 +33,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,800;1,400&display=swap" rel="stylesheet">
 
     <style>
-        *, *::before, *::after { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
-        body { font-family: 'Plus Jakarta Sans', Arial, sans-serif; background: #f1f5f9; margin: 0; padding: 0; }
+        body { font-family: 'Plus Jakarta Sans', Arial, sans-serif; }
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn .3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
@@ -267,7 +259,7 @@
          ondragleave="dragLeave('img2pdfDrop')"
          ondrop="dropImgPdf(event)">
         <input type="file" id="img2pdfInput" multiple accept="image/*" class="hidden" onchange="handleImgPdf(this.files)">
-        <i data-lucide="cloud-upload" class="mx-auto mb-3" style="width:44px;height:44px;color:#60a5fa;display:block"></i>
+        <i data-lucide="upload-cloud" class="mx-auto mb-3" style="width:44px;height:44px;color:#60a5fa;display:block"></i>
         <p class="font-bold text-slate-600 text-base sm:text-lg">Click karein ya images drag karein</p>
         <p class="text-slate-400 text-xs sm:text-sm mt-1">JPG, PNG, WebP, BMP, GIF supported</p>
     </div>
@@ -799,25 +791,79 @@ function initLucide() {
 // UNIVERSAL DOWNLOAD FUNCTION (Mobile Safe)
 function downloadBlob(blob, filename) {
     try {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        link.style.display = 'none';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setTimeout(() => {
-            try { URL.revokeObjectURL(url); } catch(e) {}
-        }, 2000);
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isAndroid = /Android/.test(navigator.userAgent);
+        
+        if (isIOS) {
+            // iOS: Use native file share if available
+            if (navigator.share) {
+                navigator.share({
+                    files: [new File([blob], filename, { type: blob.type })],
+                    title: filename
+                }).catch(err => fallbackDownload(blob, filename));
+            } else {
+                fallbackDownload(blob, filename);
+            }
+        } else if (isAndroid) {
+            // Android: Try direct download first, fallback to data URL
+            try {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                }, 500);
+            } catch(e) {
+                fallbackDownload(blob, filename);
+            }
+        } else {
+            // Desktop browsers
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            setTimeout(() => {
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }, 500);
+        }
     } catch(e) {
         console.error('Download error:', e);
-        toast('❌ Download error: ' + e.message);
+        fallbackDownload(blob, filename);
     }
 }
 
+function fallbackDownload(blob, filename) {
+    try {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const link = document.createElement('a');
+            link.href = event.target.result;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+        reader.readAsDataURL(blob);
+        toast('✅ Please check your downloads or files!');
+    } catch(e) {
+        toast('❌ Download failed: ' + e.message);
+    }
+}
+
+let currentSection = 'home'; // Track current section
+
 function showSection(id) {
     try {
+        // Update UI
         document.querySelectorAll('.tab-content').forEach(s => s.classList.remove('active'));
         const el = document.getElementById(id);
         if (el) { el.classList.add('active'); }
@@ -828,10 +874,45 @@ function showSection(id) {
         if (nb) nb.classList.add('nav-btn-active');
         window.scrollTo({ top: 0, behavior: 'smooth' });
         setTimeout(initLucide, 50);
+        
+        // Add to browser history (only if different from current)
+        if (id !== currentSection) {
+            currentSection = id;
+            // Use replaceState for first load, pushState for navigation
+            const stateObj = { section: id, timestamp: Date.now() };
+            if (window.history.state && window.history.state.section) {
+                window.history.pushState(stateObj, '', '#' + id);
+            } else {
+                window.history.replaceState(stateObj, '', '#' + id);
+            }
+        }
     } catch(e) {
         console.error('Navigation error:', e);
     }
 }
+
+// Handle browser back/forward button
+window.addEventListener('popstate', (e) => {
+    try {
+        if (e.state && e.state.section) {
+            const id = e.state.section;
+            // Directly manipulate DOM without pushing new history entry
+            document.querySelectorAll('.tab-content').forEach(s => s.classList.remove('active'));
+            const el = document.getElementById(id);
+            if (el) { el.classList.add('active'); }
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('nav-btn-active');
+            });
+            const nb = document.getElementById('nb-' + id);
+            if (nb) nb.classList.add('nav-btn-active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            currentSection = id;
+            setTimeout(initLucide, 50);
+        }
+    } catch(e) {
+        console.error('Popstate error:', e);
+    }
+});
 
 let toastTimer;
 function toast(msg, dur = 3000) {
@@ -1069,8 +1150,17 @@ function convertToPng(files) {
                     canvas.width = img.naturalWidth;
                     canvas.height = img.naturalHeight;
                     
-                    // CRITICAL: Get context with alpha channel
-                    const ctx = canvas.getContext('2d', { alpha: true });
+                    // MOBILE FIX: Get context with proper flags for all browsers
+                    const ctx = canvas.getContext('2d', { 
+                        alpha: true, 
+                        willReadFrequently: true,
+                        colorSpace: 'srgb'
+                    });
+                    
+                    if (!ctx) {
+                        toast('❌ Canvas failed on this device');
+                        return;
+                    }
                     
                     // CRITICAL: Clear FIRST to ensure transparency
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1087,6 +1177,11 @@ function convertToPng(files) {
                     // Convert to proper PNG blob
                     canvas.toBlob(blob => {
                         try {
+                            if (!blob || blob.size === 0) {
+                                toast('❌ Image creation failed');
+                                return;
+                            }
+                            
                             const pngUrl = URL.createObjectURL(blob);
                             const name = file.name.replace(/\.[^.]+$/, '') + '.png';
 
@@ -1105,11 +1200,12 @@ function convertToPng(files) {
                             }
                         } catch(e) {
                             console.error('Blob error:', e);
+                            toast('❌ Save failed: ' + e.message);
                         }
-                    }, 'image/png');
+                    }, 'image/png', 0.95);
                 } catch(e) {
                     console.error('Canvas error:', e);
-                    toast('❌ ' + file.name + ' convert error');
+                    toast('❌ ' + file.name + ' convert error: ' + e.message);
                 }
             };
             img.onerror = () => {
@@ -1140,10 +1236,18 @@ function convertToJpg(files) {
                     const canvas = document.createElement('canvas');
                     canvas.width = img.naturalWidth;
                     canvas.height = img.naturalHeight;
-                    const ctx = canvas.getContext('2d');
+                    
+                    // MOBILE FIX: Proper context creation
+                    const ctx = canvas.getContext('2d', { colorSpace: 'srgb' });
+                    if (!ctx) {
+                        toast('❌ Canvas creation failed');
+                        return;
+                    }
+                    
                     ctx.fillStyle = '#ffffff';
                     ctx.fillRect(0, 0, img.naturalWidth, img.naturalHeight);
                     ctx.drawImage(img, 0, 0);
+                    
                     const jpgUrl = canvas.toDataURL('image/jpeg', quality);
                     const name = file.name.replace(/\.[^.]+$/, '') + '.jpg';
                     const origKb = Math.round(file.size / 1024);
@@ -1356,53 +1460,73 @@ function loadWatermarkImg(file) {
 
 function previewWatermark() {
     if (!wmImg) return;
-    const canvas = document.getElementById('wmCanvas');
-    canvas.width = wmImg.naturalWidth;
-    canvas.height = wmImg.naturalHeight;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(wmImg, 0, 0);
+    try {
+        const canvas = document.getElementById('wmCanvas');
+        canvas.width = wmImg.naturalWidth;
+        canvas.height = wmImg.naturalHeight;
+        
+        const ctx = canvas.getContext('2d', { colorSpace: 'srgb' });
+        if (!ctx) {
+            console.error('Canvas context failed');
+            return;
+        }
+        
+        ctx.drawImage(wmImg, 0, 0);
 
-    const text    = document.getElementById('wmText').value || 'PDFTiming';
-    const size    = parseInt(document.getElementById('wmSize').value);
-    const opacity = parseInt(document.getElementById('wmOpacity').value) / 100;
-    const color   = document.getElementById('wmColor').value;
-    const pos     = document.getElementById('wmPos').value;
-    const W = canvas.width, H = canvas.height;
+        const text    = document.getElementById('wmText').value || 'PDFTiming';
+        const size    = parseInt(document.getElementById('wmSize').value);
+        const opacity = parseInt(document.getElementById('wmOpacity').value) / 100;
+        const color   = document.getElementById('wmColor').value;
+        const pos     = document.getElementById('wmPos').value;
+        const W = canvas.width, H = canvas.height;
 
-    ctx.save();
-    ctx.globalAlpha = opacity;
-    ctx.fillStyle = color;
-    ctx.font = 'bold ' + size + 'px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    if (pos === 'diagonal') {
         ctx.save();
-        ctx.translate(W/2, H/2);
-        ctx.rotate(-Math.PI / 6);
-        const tw = ctx.measureText(text).width;
-        for (let y = -H; y < H * 2; y += size * 3) {
-            for (let x = -W; x < W * 2; x += tw + 60) {
-                ctx.fillText(text, x, y);
+        ctx.globalAlpha = opacity;
+        ctx.fillStyle = color;
+        ctx.font = 'bold ' + size + 'px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        if (pos === 'diagonal') {
+            ctx.save();
+            ctx.translate(W/2, H/2);
+            ctx.rotate(-Math.PI / 6);
+            const tw = ctx.measureText(text).width;
+            for (let y = -H; y < H * 2; y += size * 3) {
+                for (let x = -W; x < W * 2; x += tw + 60) {
+                    ctx.fillText(text, x, y);
+                }
             }
+            ctx.restore();
+        } else {
+            const pts = { center:[W/2,H/2], topLeft:[W*0.18,H*0.1], topRight:[W*0.82,H*0.1], bottomLeft:[W*0.18,H*0.9], bottomRight:[W*0.82,H*0.9] };
+            const [x, y] = pts[pos] || [W/2, H/2];
+            ctx.fillText(text, x, y);
         }
         ctx.restore();
-    } else {
-        const pts = { center:[W/2,H/2], topLeft:[W*0.18,H*0.1], topRight:[W*0.82,H*0.1], bottomLeft:[W*0.18,H*0.9], bottomRight:[W*0.82,H*0.9] };
-        const [x, y] = pts[pos] || [W/2, H/2];
-        ctx.fillText(text, x, y);
+    } catch(e) {
+        console.error('Watermark preview error:', e);
+        toast('❌ Preview error: ' + e.message);
     }
-    ctx.restore();
 }
 
 function downloadWatermark() {
     if (!wmImg) { toast('❌ Image select karein!'); return; }
-    previewWatermark();
-    const canvas = document.getElementById('wmCanvas');
-    canvas.toBlob(blob => {
-        downloadBlob(blob, 'PDFTiming_Watermarked.png');
-        toast('✅ Watermarked image download ho gayi!');
-    }, 'image/png');
+    try {
+        previewWatermark();
+        const canvas = document.getElementById('wmCanvas');
+        canvas.toBlob(blob => {
+            if (!blob || blob.size === 0) {
+                toast('❌ Failed to create watermarked image');
+                return;
+            }
+            downloadBlob(blob, 'PDFTiming_Watermarked.png');
+            toast('✅ Watermarked image download ho gayi!');
+        }, 'image/png', 0.95);
+    } catch(e) {
+        console.error('Download watermark error:', e);
+        toast('❌ Download failed: ' + e.message);
+    }
 }
 
 // ROTATE & FLIP
@@ -1424,18 +1548,29 @@ function loadRotImg(file) {
 }
 
 function renderRot() {
-    const canvas = document.getElementById('rotCanvas');
-    const rad = (rotAngle % 360) * Math.PI / 180;
-    const sin = Math.abs(Math.sin(rad)), cos = Math.abs(Math.cos(rad));
-    const W = rotImgEl.naturalWidth, H = rotImgEl.naturalHeight;
-    canvas.width  = Math.round(W * cos + H * sin);
-    canvas.height = Math.round(W * sin + H * cos);
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.translate(canvas.width / 2, canvas.height / 2);
-    ctx.rotate(rad);
-    ctx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
-    ctx.drawImage(rotImgEl, -W / 2, -H / 2);
+    try {
+        const canvas = document.getElementById('rotCanvas');
+        const rad = (rotAngle % 360) * Math.PI / 180;
+        const sin = Math.abs(Math.sin(rad)), cos = Math.abs(Math.cos(rad));
+        const W = rotImgEl.naturalWidth, H = rotImgEl.naturalHeight;
+        canvas.width  = Math.round(W * cos + H * sin);
+        canvas.height = Math.round(W * sin + H * cos);
+        
+        const ctx = canvas.getContext('2d', { colorSpace: 'srgb' });
+        if (!ctx) {
+            console.error('Canvas context failed');
+            return;
+        }
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.rotate(rad);
+        ctx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
+        ctx.drawImage(rotImgEl, -W / 2, -H / 2);
+    } catch(e) {
+        console.error('Rotate render error:', e);
+        toast('❌ Rotate failed: ' + e.message);
+    }
 }
 
 function rotateImg(deg) { rotAngle = (rotAngle + deg + 360) % 360; renderRot(); }
@@ -1443,11 +1578,20 @@ function flipImg(dir)   { if (dir==='h') flipH=!flipH; else flipV=!flipV; render
 
 function downloadRotated() {
     if (!rotImgEl) { toast('❌ Image select karein!'); return; }
-    const canvas = document.getElementById('rotCanvas');
-    canvas.toBlob(blob => {
-        downloadBlob(blob, 'PDFTiming_Rotated.png');
-        toast('✅ Rotated image download ho gayi!');
-    }, 'image/png');
+    try {
+        const canvas = document.getElementById('rotCanvas');
+        canvas.toBlob(blob => {
+            if (!blob || blob.size === 0) {
+                toast('❌ Failed to create rotated image');
+                return;
+            }
+            downloadBlob(blob, 'PDFTiming_Rotated.png');
+            toast('✅ Rotated image download ho gayi!');
+        }, 'image/png', 0.95);
+    } catch(e) {
+        console.error('Download rotate error:', e);
+        toast('❌ Download failed: ' + e.message);
+    }
 }
 
 // CROP
@@ -1471,17 +1615,36 @@ function loadCropImg(file) {
 
 function doCrop() {
     if (!cropImgEl) { toast('❌ Image select karein!'); return; }
-    const x = parseInt(document.getElementById('cropX').value) || 0;
-    const y = parseInt(document.getElementById('cropY').value) || 0;
-    const w = parseInt(document.getElementById('cropW').value) || 100;
-    const h = parseInt(document.getElementById('cropH').value) || 100;
-    const canvas = document.createElement('canvas');
-    canvas.width = w; canvas.height = h;
-    canvas.getContext('2d').drawImage(cropImgEl, x, y, w, h, 0, 0, w, h);
-    canvas.toBlob(blob => {
-        downloadBlob(blob, 'PDFTiming_Cropped.png');
-        toast('✅ Cropped image download ho gayi!');
-    }, 'image/png');
+    try {
+        const x = parseInt(document.getElementById('cropX').value) || 0;
+        const y = parseInt(document.getElementById('cropY').value) || 0;
+        const w = parseInt(document.getElementById('cropW').value) || 100;
+        const h = parseInt(document.getElementById('cropH').value) || 100;
+        
+        const canvas = document.createElement('canvas');
+        canvas.width = w; 
+        canvas.height = h;
+        
+        const ctx = canvas.getContext('2d', { colorSpace: 'srgb' });
+        if (!ctx) {
+            toast('❌ Canvas creation failed');
+            return;
+        }
+        
+        ctx.drawImage(cropImgEl, x, y, w, h, 0, 0, w, h);
+        
+        canvas.toBlob(blob => {
+            if (!blob || blob.size === 0) {
+                toast('❌ Failed to create cropped image');
+                return;
+            }
+            downloadBlob(blob, 'PDFTiming_Cropped.png');
+            toast('✅ Cropped image download ho gayi!');
+        }, 'image/png', 0.95);
+    } catch(e) {
+        console.error('Crop error:', e);
+        toast('❌ Crop failed: ' + e.message);
+    }
 }
 
 // MERGE PDF
@@ -2026,41 +2189,106 @@ function undoPngAction() {
 }
 
 async function runAiBackgroundRemove() {
-    if(!uploadedFileBlob || !window.imglyRemoveBackground) {
-        return toast('❌ No image or AI model not loaded!');
+    if(!uploadedFileBlob) {
+        return toast('❌ No image uploaded!');
     }
+    
     const btn = document.getElementById('btnRunAiBg');
     const prog = document.getElementById('aiBgProgress');
     try {
         btn.disabled = true;
-        btn.innerText = "⏳ Processing AI... Please wait";
+        btn.innerText = "⏳ Loading ML Model... (10-15 seconds first time)";
         prog.style.display = 'block';
+        prog.innerText = "⏳ Initializing TensorFlow.js...";
         
         savePngState();
         
-        // Use Img.ly AI exactly as per their standard api
-        const blob = await window.imglyRemoveBackground(uploadedFileBlob, {
-            progress: (key, current, total) => {
-                const percent = Math.round((current/total)*100);
-                prog.innerText = `⏳ Loading ML Models: ${key} (${percent}%)`;
-            }
-        });
-        
-        const url = URL.createObjectURL(blob);
+        // Load the image from blob
         const img = new Image();
-        img.onload = () => {
-            freePngCtx.clearRect(0,0, freePngCanvas.width, freePngCanvas.height);
-            freePngCtx.drawImage(img, 0, 0);
-            prog.style.display = 'none';
-            btn.innerText = "✨ Background Removed Successfully!";
-            toast('🤖 AI Background Removal complete!');
+        img.crossOrigin = 'anonymous';
+        img.onload = async () => {
+            try {
+                // Create canvas for segmentation
+                const canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                
+                prog.innerText = "⏳ Analyzing image with AI...";
+                
+                // Load segmentation model
+                const net = await bodySegmentation.load(bodySegmentation.SupportedModels.MediaPipeSelfieSegmenter, {
+                    runtime: 'tfjs'
+                });
+                
+                prog.innerText = "⏳ Detecting person/foreground...";
+                
+                // Run segmentation
+                const segmentation = await net.segmentPeople(canvas, {
+                    flipHorizontal: false,
+                    multiSegmentation: false,
+                    segmentationThresholds: [0.5]
+                });
+                
+                prog.innerText = "⏳ Creating transparent background...";
+                
+                // Generate mask
+                const foregroundColor = { r: 0, g: 0, b: 0, a: 255 };
+                const backgroundColor = { r: 255, g: 255, b: 255, a: 0 };
+                
+                const maskCanvas = await bodySegmentation.toBinaryMask(
+                    segmentation,
+                    foregroundColor,
+                    backgroundColor,
+                    false,
+                    canvas
+                );
+                
+                // Apply mask to original image
+                const outputCanvas = document.createElement('canvas');
+                outputCanvas.width = img.naturalWidth;
+                outputCanvas.height = img.naturalHeight;
+                const outCtx = outputCanvas.getContext('2d');
+                
+                // Draw original image
+                outCtx.drawImage(img, 0, 0);
+                
+                // Apply mask as alpha channel
+                const imgData = outCtx.getImageData(0, 0, outputCanvas.width, outputCanvas.height);
+                const maskData = maskCanvas.getContext('2d').getImageData(0, 0, maskCanvas.width, maskCanvas.height);
+                
+                for (let i = 0; i < imgData.data.length; i += 4) {
+                    // Use the red channel from mask (0 = transparent background, 255 = keep foreground)
+                    imgData.data[i + 3] = maskData.data[i]; // Set alpha from mask
+                }
+                
+                outCtx.putImageData(imgData, 0, 0);
+                
+                // Draw result to canvas
+                freePngCtx.clearRect(0, 0, freePngCanvas.width, freePngCanvas.height);
+                freePngCtx.drawImage(outputCanvas, 0, 0);
+                
+                prog.style.display = 'none';
+                btn.innerText = "✨ Background Removed Successfully!";
+                btn.disabled = false;
+                toast('🤖 AI Background Removal complete!');
+                
+                net.dispose();
+            } catch(err) {
+                throw err;
+            }
         };
-        img.src = url;
+        img.onerror = () => {
+            throw new Error('Failed to load image');
+        };
+        img.src = URL.createObjectURL(uploadedFileBlob);
     } catch(err) {
         prog.style.display = 'none';
         btn.disabled = false;
         btn.innerText = "✨ Try Auto AI Again";
-        toast('❌ AI Failed: ' + err.message);
+        console.error('AI Background error:', err);
+        toast('❌ AI Failed: ' + (err.message || 'Using color wand or brush instead'));
     }
 }
 
@@ -2194,21 +2422,119 @@ function resetFreePng() {
 function downloadFreePng() {
     if(!freePngCanvas) return;
     toast('⏳ Processing Transparent PNG...');
-    const scale = parseFloat(document.getElementById('freePngSize').value);
-    let outCanvas = freePngCanvas;
+    try {
+        const scale = parseFloat(document.getElementById('freePngSize').value);
+        let outCanvas = freePngCanvas;
+        
+        if(scale < 1) {
+            outCanvas = document.createElement('canvas');
+            outCanvas.width = Math.max(1, Math.round(freePngCanvas.width * scale));
+            outCanvas.height = Math.max(1, Math.round(freePngCanvas.height * scale));
+            
+            const ctx = outCanvas.getContext('2d', { 
+                alpha: true,
+                willReadFrequently: true,
+                colorSpace: 'srgb'
+            });
+            
+            if (!ctx) {
+                toast('❌ Canvas creation failed');
+                return;
+            }
+            
+            // Clear the context first
+            ctx.clearRect(0, 0, outCanvas.width, outCanvas.height);
+            // Draw the scaled image
+            ctx.drawImage(freePngCanvas, 0, 0, outCanvas.width, outCanvas.height);
+        }
+        
+        outCanvas.toBlob(blob => {
+            if (!blob || blob.size === 0) {
+                toast('❌ Failed to create PNG file');
+                return;
+            }
+            downloadBlob(blob, 'PDFTiming_Transparent.png');
+            toast('✅ PNG Download ho gayi!');
+        }, 'image/png', 0.95);
+    } catch(e) {
+        console.error('Download PNG error:', e);
+        toast('❌ Download failed: ' + e.message);
+    }
+}
+
+// ====== MOBILE INITIALIZATION & OPTIMIZATION ====== //
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Lucide icons
+    initLucide();
     
-    if(scale < 1) {
-        outCanvas = document.createElement('canvas');
-        outCanvas.width = freePngCanvas.width * scale;
-        outCanvas.height = freePngCanvas.height * scale;
-        outCanvas.getContext('2d').drawImage(freePngCanvas, 0, 0, outCanvas.width, outCanvas.height);
+    // Initialize browser history tracking
+    if (!window.history.state) {
+        window.history.replaceState({ section: 'home', timestamp: Date.now() }, '', '#home');
     }
     
-    outCanvas.toBlob(blob => {
-        downloadBlob(blob, 'PDFTiming_Transparent.png');
-        toast('✅ PNG Download ho gayi!');
-    }, 'image/png');
-}
+    // Handle deep links (load specific section from URL hash)
+    const hash = window.location.hash.slice(1); // Remove # from hash
+    if (hash && hash !== 'home') {
+        const element = document.getElementById(hash);
+        if (element) {
+            currentSection = hash;
+            showSection(hash);
+        } else {
+            showSection('home');
+        }
+    }
+    
+    // Mobile optimization
+    const isMobile = /iPhone|iPad|Android|webOS|BlackBerry/i.test(navigator.userAgent);
+    if (isMobile) {
+        // Prevent zoom on double-click (faster interactions)
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', (e) => {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+        
+        // Optimize canvas rendering for low-memory devices
+        if (navigator.deviceMemory && navigator.deviceMemory < 4) {
+            console.warn('Low memory device detected');
+            toast('💾 Low memory: Reduce image size for best results');
+        }
+        
+        // Disable context menu on elements to prevent iOS popup
+        document.querySelectorAll('input[type="file"], button').forEach(el => {
+            el.addEventListener('contextmenu', (e) => e.preventDefault());
+        });
+        
+        // Fix iOS input/keyboard issues
+        document.querySelectorAll('input, textarea, [contenteditable]').forEach(el => {
+            el.addEventListener('focus', () => {
+                setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+            });
+        });
+    }
+    
+    // Prevent memory leaks with Blob URLs
+    window.addEventListener('beforeunload', () => {
+        document.querySelectorAll('a[href*="blob:"]').forEach(link => {
+            try { URL.revokeObjectURL(link.href); } catch(e) {}
+        });
+    });
+});
+
+// Handle visibility change for memory management
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        // App is hidden - can clear some cached data if needed
+        console.log('App hidden - conserving memory');
+    } else {
+        // App is visible - reinitialize if needed
+        initLucide();
+    }
+});
 </script>
+
 </body>
 </html>
